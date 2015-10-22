@@ -21,12 +21,10 @@ scalacOptions ++= Seq(
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
-  //"-language:implicitConversions",
   "-language:experimental.macros",
   "-unchecked",
   "-Xfatal-warnings",
   "-Xlint",
-  //"-Xlog-implicits",
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
@@ -40,7 +38,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  compilerPlugin("org.spire-math" %% "kind-projector" % "0.6.0"),
   "org.scalaz"     %% "scalaz-core" % scalazVersion,
   "org.spire-math" %% "spire"       % spireVersion,
   "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
