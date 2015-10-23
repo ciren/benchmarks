@@ -16,7 +16,9 @@ object Sized {
   type Sized10[A] = (A, A, A, A, A, A, A, A, A, A)
 
   type Sized1And[F[_], A] = OneAnd[F, A]
-  final case class Sized2And[F[_], A](a: A, b: A, rest: F[A])
+  final case class Sized2And[F[_]: Foldable, A](a: A, b: A, rest: F[A]) {
+    val toList = a :: b :: rest.toList
+  }
 
   def toSized1[F[_]: Foldable, A](x: F[A]): Option[Sized1[A]] = x.index(0)
 

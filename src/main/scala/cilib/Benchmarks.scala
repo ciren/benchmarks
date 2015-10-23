@@ -189,7 +189,7 @@ object Benchmarks {
     x.sum(xi => (xi + 10) ** 2) + exp(-x.sum(_ ** 2))
 
   def brown[F[_]: Foldable, A: Ring : NRoot : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) => (xi ** 2).fpow((xi1 ** 2) + 1) + (xi1 ** 2).fpow((xi ** 2) + 1)
     }
 
@@ -368,7 +368,7 @@ object Benchmarks {
 
   def differentPowers[F[_]: Foldable, A: NRoot : Ring : Signed : Monoid](x: Sized2And[F,A]) = {
     val n = x.rest.length + 2
-    val inner = (x.a :: x.b :: x.rest.toList).zipWithIndex.suml {
+    val inner = x.toList.zipWithIndex.suml {
       case (xi, i) => abs(xi) ** (2 + ((4 * i) / (n - 1)))
     }
     sqrt(inner)
@@ -379,7 +379,7 @@ object Benchmarks {
 
   def dixonPrice[F[_]: Foldable, A: Ring : Monoid](x: Sized2And[F,A]) = {
     val t1 = ((x.a - 1) ** 2)
-    val t2 = (x.a :: x.b :: x.rest.toList).pairs.zipWithIndex.suml {
+    val t2 = x.toList.pairs.zipWithIndex.suml {
       case ((xi, xi1), i) => (i + 2) * (((2 * (xi1 ** 2)) - xi) ** 2)
     }
     t1 + t2
@@ -407,7 +407,7 @@ object Benchmarks {
     x.sum(_ ** 2) + 24 * x.sum(sin(_) ** 2)
 
   def eggHolder[F[_]: Foldable, A: Field : NRoot : Signed : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (x1, x2) =>
         -(x2 + 47) * sin(sqrt(abs(x2 + (x1 / 2) + 47))) - x1 * sin(sqrt(abs(x1 - x2 - 47)))
     }
@@ -422,7 +422,7 @@ object Benchmarks {
 
   def elliptic[F[_]: Foldable, A: Field : Monoid](x: Sized2And[F,A]) = {
     val n = x.rest.length + 2
-    (x.a :: x.b :: x.rest.toList).zipWithIndex.suml {
+    x.toList.zipWithIndex.suml {
       case (xi, i) => (10e6 ** (i / (n - 1.0))) * (xi ** 2)
     }
   }
@@ -698,14 +698,13 @@ object Benchmarks {
 
   def levy3[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) = {
     def y(xi: A): A = 1 + (xi - 1) / 4.0
-    val xs = x.a :: x.b :: x.rest.toList
 
     val t1 = sin(pi * y(x.a)) ** 2
-    val t2 = xs.pairs.suml {
+    val t2 = x.toList.pairs.suml {
       case (xi, xi1) =>
         ((y(xi) - 1) ** 2) * (1 + 10 * ((pi * y(xi1) ** 2)))
     }
-    val t3 = (y(xs.last) - 1) ** 2
+    val t3 = (y(x.toList.last) - 1) ** 2
 
     t1 + t2 + t3
   }
@@ -728,7 +727,7 @@ object Benchmarks {
   }
 
   def levyMontalvo2[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) = {
-    val xs = x.a :: x.b :: x.rest.toList
+    val xs = x.toList
 
     val t1 = sin(3 * pi * x.a) ** 2
     val t2 = xs.pairs.suml {
@@ -779,11 +778,11 @@ object Benchmarks {
   }
 
   def mishra2[F[_]: Foldable, A: Field : NRoot : Monoid](x: Sized2And[F,A]) = {
-    val sum = (x.a :: x.b :: x.rest.toList).pairs.suml {
+    val sum = x.toList.pairs.suml {
       case (xi, xi1) => 0.5 * (xi + xi1)
     }
 
-    val n = x.rest.length + 2
+    val n = x.toList.length
 
     (1 + n - sum).fpow(n - sum)
   }
@@ -896,7 +895,7 @@ object Benchmarks {
   }
 
   def pathological[F[_]: Foldable, A: Field : NRoot : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val numer = sin(sqrt(100 * (xi ** 2) + (xi1 ** 2))) ** 2 - 0.5
         val denom = 1 + 0.001 * (((xi ** 2) - 2 * xi * xi1 + (xi1 ** 2)) ** 2)
@@ -918,7 +917,7 @@ object Benchmarks {
 
     def yi(xi: A) = 1 + ((xi + 1) / 4)
 
-    val xs = x.a :: x.b :: x.rest.toList
+    val xs = x.toList
     val term1 = 10 * (sin(pi * yi(xs.head)) ** 2)
     val term2 = xs.pairs.suml {
       case (xi, xi1) =>
@@ -938,7 +937,7 @@ object Benchmarks {
       else if (xi < -a) k * ((-xi - a) ** m)
       else A.zero
 
-    val xs = (x.a :: x.b :: x.rest.toList)
+    val xs = x.toList
     val term1 = sin(3.0 * pi * xs.head) ** 2
     val term2 = xs.pairs.suml {
       case (xi, xi1) =>
@@ -968,7 +967,7 @@ object Benchmarks {
   }
 
   def pinter[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) = {
-    val xs = (x.a :: x.b :: x.rest.toList)
+    val xs = x.toList
     val padded = xs.last :: (xs :+ xs.head)
 
     def A(a0: A, a1: A, a2: A) = a0 * sin(a1) + sin(a2)
@@ -1059,7 +1058,7 @@ object Benchmarks {
     })
 
   def rana[F[_]: Foldable, A: Field : NRoot : Signed : Trig : Monoid](x: Sized2And[F,A]) = {
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = sqrt(abs(xi1 + xi + 1))
         val t2 = sqrt(abs(xi1 - xi + 1))
@@ -1071,7 +1070,7 @@ object Benchmarks {
     10 * x.length + x.sum(xi => xi ** 2 - 10 * cos(2 * pi * xi))
 
   def rosenbrock[F[_]: Foldable, A: Ring : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) => 100 * ((xi1 - (xi ** 2)) ** 2) + ((xi - 1) ** 2)
     }
 
@@ -1090,13 +1089,13 @@ object Benchmarks {
     }
 
   def rotatedEllipse1[F[_]: Foldable, A: Field : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (x1, x2) =>
         (7 * (x1 ** 2)) - (6 * sqrt(3.0) * x1 * x2) + (13 * (x2 ** 2))
     }
 
   def rotatedEllipse2[F[_]: Foldable, A: Ring : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (x1, x2) => (x1 ** 2) - (x1 * x2) + (x2 ** 2)
     }
 
@@ -1115,7 +1114,7 @@ object Benchmarks {
   }
 
   def schaffer1[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = (xi ** 2) + (xi1 ** 2)
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1125,7 +1124,7 @@ object Benchmarks {
     }
 
   def schaffer2[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = (xi ** 2) - (xi1 ** 2)
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1135,7 +1134,7 @@ object Benchmarks {
     }
 
   def schaffer3[F[_]: Foldable, A: Field : Signed : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = cos(abs((xi ** 2) - (xi1 ** 2)))
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1145,7 +1144,7 @@ object Benchmarks {
     }
 
   def schaffer4[F[_]: Foldable, A: Field : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = sin((xi ** 2) - (xi1 ** 2))
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1297,7 +1296,7 @@ object Benchmarks {
     x.sum(xi => floor(xi ** 2))
 
   def stretchedVSineWave[F[_]: Foldable, A: Field : NRoot : Trig : Monoid](x: Sized2And[F,A]) =
-    (x.a :: x.b :: x.rest.toList).pairs.suml {
+    x.toList.pairs.suml {
       case (xi, xi1) =>
         val t1 = ((xi1 ** 2) + (xi ** 2)) ** 0.25
         val t2 = sin(50 * (((xi1 ** 2) + (xi ** 2) ** 0.1))) ** 2 + 0.1
@@ -1334,7 +1333,7 @@ object Benchmarks {
   }
 
   def trid[F[_]: Foldable, A: Field : Monoid](x: Sized2And[F,A]) = {
-    val xs = x.a :: x.b :: x.rest.toList
+    val xs = x.toList
     val t1 = xs.suml(xi => (xi - 1) ** 2)
     val t2 = xs.pairs.suml { case (xi, xi1) => xi * xi1 }
     t1 - t2
