@@ -1,10 +1,9 @@
 import sbt._
 import Keys._
 
-val scalazVersion     = "7.1.2"
-val spireVersion      = "0.9.0"
-val monocleVersion    = "1.1.1"
-val scalacheckVersion = "1.11.4"
+val scalazVersion     = "7.1.4"
+val spireVersion      = "0.10.1"
+val scalacheckVersion = "1.12.5"
 
 organization := "net.cilib"
 
