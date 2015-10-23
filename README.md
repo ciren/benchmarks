@@ -15,7 +15,7 @@ def rastrigin[F[_]: Foldable1, A: Field : IsReal : Trig : Monoid](x: F[A]) =
 
 ## Examples
 
-Functions can be used with a number of different numerical types:
+Functions can be used with different numerical types:
 
 ### Double
 
