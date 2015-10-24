@@ -1,6 +1,6 @@
 # benchmarks
 
-A collection of *n*-dimensional benchmark functions using [non/spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` and `Maybe` types.
+A collection of *n*-dimensional benchmark functions using [non/spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` types.
 
 All functions have tests for both minimum values as well as known optima.
 
@@ -23,9 +23,8 @@ Functions can be used with different numerical types:
 import scalaz.NonEmptyList
 
 val x = NonEmptyList(1.0, 2.0, 3.0)
-
 spherical(x)
-// res1: Double = 15.0
+// res1: Double = 14.0
 
 val z = (1.0, 2.0)
 ackley2(z)
@@ -47,7 +46,10 @@ spherical(x)
 // res5: Jet[Double] = (5.0 + [2.0, 4.0]h)
 
 val z = (a, b)
-
 ackley2(z)
 // res7: Jet[Double] = (-191.2527797034299 + [1.7106168652106453, 3.4212337304212905]h)
 ```
+
+## Thanks
+
+To [@andyfaff](https://github.com/andyfaff) for providing information and corrections on many of the benchmark functions.
