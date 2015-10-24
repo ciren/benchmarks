@@ -4,6 +4,7 @@ scala:
 jdk:
   - oraclejdk8
   - oraclejdk7
+
 notifications:
   email:
     on_success: never
@@ -14,4 +15,3 @@ notifications:
       - https://webhooks.gitter.im/e/9df9c83ef091cee2f675
     on_success: always
     on_failure: always
-    on_start: false
