@@ -1,5 +1,7 @@
 # benchmarks
 
+[![Build Status](https://travis-ci.org/cirg-up/benchmarks.svg?branch=master)](https://travis-ci.org/cirg-up/benchmarks)
+
 A collection of *n*-dimensional benchmark functions using [non/spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` types.
 
 All functions have tests for both minimum values as well as known optima.
