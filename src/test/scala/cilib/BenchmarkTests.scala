@@ -58,7 +58,7 @@ object BenchmarksTest extends Properties("Benchmarks") {
      Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple10.apply }
 
   def gen1And(l: Double, u: Double) =
-    (gen1(l, u) |@| Gen.containerOf[List, Double](gen1(l, u)))(OneAnd.apply)
+    (gen1(l, u) |@| Gen.containerOf[List, Double](gen1(l, u))) { (a, b) => Sized1And(a, b) }
 
   def gen2And(l: Double, u: Double) =
     (gen2(l, u) |@| Gen.containerOf[List, Double](gen1(l, u))) { (a, b) => Sized2And(a._1, a._2, b) }
@@ -72,7 +72,7 @@ object BenchmarksTest extends Properties("Benchmarks") {
     val abs = absoluteValue(g)
     abs === absoluteValue(g.map(_ * -1)) &&
     abs >= 0.0 &&
-    abs >= g.foldMap()
+    abs >= g.toList.sum
   } && {
     absoluteValue(zero3) === 0.0 &&
     absoluteValue(NonEmptyList(1.0, 2.0, 3.0)) === 6.0 &&
@@ -303,9 +303,9 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("discus") = forAll(gen1And(-100.0, 100.0)) { g =>
     discus(g) >= 0.0
   } && {
-    discus(OneAnd(0.0, zero3))      === 0.0 &&
-    discus(OneAnd(1.0, Nil))       === 1e6 &&
-    discus(OneAnd(1.0, List(1.0))) === 1e6 + 1.0
+    discus(Sized1And(0.0, zero3))      === 0.0 &&
+    discus(Sized1And(1.0, Nil))       === 1e6 &&
+    discus(Sized1And(1.0, List(1.0))) === 1e6 + 1.0
   }
 
   property("dixonPrice") = forAll(gen2And(-10.0, 10.0)) { g =>

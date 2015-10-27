@@ -15,7 +15,11 @@ object Sized {
   type Sized6[A] = (A, A, A, A, A, A)
   type Sized10[A] = (A, A, A, A, A, A, A, A, A, A)
 
-  type Sized1And[F[_], A] = OneAnd[F, A]
+  final case class Sized1And[F[_]: Foldable, A](a: A, rest: F[A]) {
+    val toList = a :: rest.toList
+    val head = a
+    val tail = rest
+  }
   final case class Sized2And[F[_]: Foldable, A](a: A, b: A, rest: F[A]) {
     val toList = a :: b :: rest.toList
   }

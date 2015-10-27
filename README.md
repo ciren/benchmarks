@@ -11,7 +11,7 @@ All functions have tests for both minimum values as well as known optima.
 Functions are defined using algebraic properties:
 
 ```scala
-def rastrigin[F[_]: Foldable1, A: Field : IsReal : Trig : Monoid](x: F[A]) =
+def rastrigin[F[_]: Foldable1, A: Field : IsReal : Trig](x: F[A]) =
   10 * x.length + x.sum(xi => xi ** 2 - 10 * cos(2 * pi * xi))
 ```
 
