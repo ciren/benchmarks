@@ -41,7 +41,7 @@ import spire.implicits._
 implicit val jd = JetDim(2)
 
 val a = 1.0 + Jet.h[Double](0)
-val b = 2.0 + Jey.h[Double](1)
+val b = 2.0 + Jet.h[Double](1)
 val x = NonEmptyList(a, b)
 
 spherical(x)
@@ -54,4 +54,4 @@ ackley2(z)
 
 ## Thanks
 
-To [@andyfaff](https://github.com/andyfaff) for providing information and corrections on many of the benchmark functions.
+To [@andyfaff](https://github.com/andyfaff) for providing information on many of the benchmark functions.
