@@ -248,10 +248,10 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("csendes") = forAll(genNEL(-1.0, 1.0)) { g =>
     val fit = csendes(g)
     if (g.any(_ == 0.0))
-      fit === None
+      fit == None
     else
       fit.forall(_ >= 0.0)
-  } && csendes(zero3) === None
+  } && csendes(zero3) == None
 
   property("cube") = forAll(gen2(-10.0, 10.0)) { g =>
     cube(g) >= 0.0
@@ -263,7 +263,7 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("damavandi") = forAll(gen2(0.0, 14.0)) { g =>
     damavandi(g).forall(_ >= 0.0)
   } && {
-    damavandi((2.0, 2.0)) === None
+    damavandi((2.0, 2.0)) == None
   }
 
   property("deb") = forAll(genNEL(0.0, 1.0)) { g =>

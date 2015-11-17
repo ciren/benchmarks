@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 val scalazVersion     = "7.1.4"
-val spireVersion      = "0.10.1"
+val spireVersion      = "0.11.0"
 val scalacheckVersion = "1.12.5"
 
 organization := "net.cilib"
