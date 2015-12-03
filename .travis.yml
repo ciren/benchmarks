@@ -5,13 +5,8 @@ jdk:
   - oraclejdk8
   - oraclejdk7
 
-notifications:
-  email:
-    on_success: never
-    on_failure: always
-  irc: "irc.freenode.org#cilib"
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/9df9c83ef091cee2f675
-    on_success: always
-    on_failure: always
+script:
+    - sbt clean coverage test
+
+after_success:
+    - pip install --user codecov && codecov
