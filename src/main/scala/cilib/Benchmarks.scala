@@ -162,10 +162,11 @@ object Benchmarks {
       0.73, 0.96, 1.34, 2.10, 4.39
     )
 
-    (1 to 15).sumr { ui =>
+    y.zipWithIndex.suml { case (yi, i) =>
+      val ui = i + 1
       val vi = 16 - ui
-      val wi = spire.math.min(ui, vi)
-      ((y(ui - 1) - x1 - ui) / (vi * x2 + wi * x3)) ** 2
+      val wi = min(ui, vi)
+      ((yi - x1 - ui) / (vi * x2 + wi * x3)) ** 2
     }
   }
 

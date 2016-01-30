@@ -15,12 +15,11 @@ import org.scalacheck.Prop._
 import spire.implicits._
 import spire.math._
 
+import Benchmarks._
 import Ops._
+import Sized._
 
 object BenchmarksTest extends Properties("Benchmarks") {
-  import Benchmarks._
-  import Sized._
-
   val zero3 = NonEmptyList(0.0, 0.0, 0.0)
 
   val epsilon = 1e-15
@@ -167,6 +166,10 @@ object BenchmarksTest extends Properties("Benchmarks") {
     boxBettsQuadraticSum(10)((1.0, 10.0, 1.0)) === 0.0
   }
 
+  property("brad") = forAll(gen3D((-0.25, 0.25), (0.01, 2.5), (0.01, 2.5))) { g =>
+    brad(g) >= 0.00821487
+  }
+
   property("braninRCOS1") = forAll(gen2D((-5.0, 10.0), (0.0, 15.0))) { g =>
     braninRCOS1(g) >= 0.3978874 - epsilon
   } && braninRCOS1((-pi, 12.275)) ~ (0.3978874, epsilonF(5))
@@ -209,7 +212,11 @@ object BenchmarksTest extends Properties("Benchmarks") {
 
   property("centralTwoPeakTrap") = forAll(gen1(0.0, 20.0)) { g =>
     centralTwoPeakTrap(g) >= -200.0
-  } && centralTwoPeakTrap((20.0)) === -200.0
+  } && {
+    centralTwoPeakTrap((-1.0)) === 0.0 &&
+    centralTwoPeakTrap((20.0)) === -200.0 &&
+    centralTwoPeakTrap((21.0)) === -200.0
+  }
 
   property("chichinadze") = forAll(gen2(-30.0, 30.0)) { g =>
     chichinadze(g) >= -43.3159
