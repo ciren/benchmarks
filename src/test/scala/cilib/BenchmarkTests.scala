@@ -1,21 +1,19 @@
 package cilib
 package benchmarks
 
-import scalaz.scalacheck.ScalaCheckBinding._
 import scalaz.std.anyVal._
 import scalaz.std.list._
-import scalaz.syntax.apply._
 import scalaz.syntax.traverse1._
-import scalaz.{Apply,NonEmptyList,OneAnd}
+import scalaz.{NonEmptyList,OneAnd}
 
 import org.scalacheck._
-import org.scalacheck.Gen
 import org.scalacheck.Prop._
 
 import spire.implicits._
 import spire.math._
 
 import Benchmarks._
+import Generators._
 import Ops._
 import Sized._
 
@@ -29,45 +27,6 @@ object BenchmarksTest extends Properties("Benchmarks") {
     def ~(v: Double, e: Double) = abs(v - d) <= e
     def ~(v: Double) = abs(v - d) <= epsilon
   }
-
-  def gen1(l: Double, u: Double) =
-    Gen.choose(l, u)
-
-  def gen2(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple2.apply }
-
-  def gen2D(d1: (Double, Double), d2: (Double, Double)) =
-    (Gen.choose(d1._1, d1._2) |@| Gen.choose(d2._1, d2._2)) { Tuple2.apply }
-
-  def gen3(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple3.apply }
-
-  def gen3D(d1: (Double, Double), d2: (Double, Double), d3: (Double, Double)) =
-    (Gen.choose(d1._1, d1._2) |@| Gen.choose(d2._1, d2._2) |@| Gen.choose(d3._1, d3._2)) { Tuple3.apply }
-
-  def gen4(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l,u)) { Tuple4.apply }
-
-  def gen5(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple5.apply }
-
-  def gen6(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple6.apply }
-
-  def gen10(l: Double, u: Double) =
-    (Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@|
-     Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u) |@| Gen.choose(l, u)) { Tuple10.apply }
-
-  def gen1And(l: Double, u: Double) =
-    (gen1(l, u) |@| Gen.containerOf[List, Double](gen1(l, u))) { (a, b) => Sized1And(a, b) }
-
-  def gen2And(l: Double, u: Double) =
-    (gen2(l, u) |@| Gen.containerOf[List, Double](gen1(l, u))) { (a, b) => Sized2And(a._1, a._2, b) }
-
-  def genNEL(l: Double, u: Double) =
-    gen1And(l, u).map(x => NonEmptyList.nel(x.head, x.tail))
-
-  def genConst(v: Double) = genNEL(v, v)
 
   property("absoluteValue") = forAll(genNEL(-100.0, 100.0)) { g =>
     val abs = absoluteValue(g)
@@ -101,7 +60,7 @@ object BenchmarksTest extends Properties("Benchmarks") {
   } && alpine1(zero3) === 0.0
 
   property("alpine2") = forAll(genNEL(0.0, 10.0)) { g =>
-    alpine2(g) <= g.list.productl(sqrt)
+    alpine2(g) <= g.list.toList.productl(sqrt)
   } && alpine2(NonEmptyList(7.91705268, 4.81584232)) ~ (-6.1295, epsilonF(3))
 
   property("arithmeticMean") = forAll(genNEL(0.0, 1.0)) { g =>
