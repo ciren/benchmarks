@@ -1,19 +1,21 @@
 package cilib
 package benchmarks
 
-import scalaz.{Apply,NonEmptyList,OneAnd}
+import scalaz.scalacheck.ScalaCheckBinding._
 import scalaz.std.anyVal._
 import scalaz.std.list._
 import scalaz.syntax.apply._
 import scalaz.syntax.traverse1._
-import scalaz.scalacheck.ScalaCheckBinding._
+import scalaz.{Apply,NonEmptyList,OneAnd}
 
 import org.scalacheck._
-import org.scalacheck.Prop._
 import org.scalacheck.Gen
+import org.scalacheck.Prop._
 
-import spire.math._
 import spire.implicits._
+import spire.math._
+
+import Ops._
 
 object BenchmarksTest extends Properties("Benchmarks") {
   import Benchmarks._
@@ -95,12 +97,13 @@ object BenchmarksTest extends Properties("Benchmarks") {
     adjiman(g) >= -5.02181
   } && adjiman((2.0, 0.10578)) === -2.0218067833370204
 
-  property("alpine") = forAll(genNEL(-10.0, 10.0)) { g =>
+  property("alpine1") = forAll(genNEL(-10.0, 10.0)) { g =>
     alpine1(g) >= 0.0
-  } && {
-    alpine1(zero3) === 0.0 &&
-    alpine2(NonEmptyList(7.91705268, 4.81584232)) ~ (-6.1295, epsilonF(3))
-  }
+  } && alpine1(zero3) === 0.0
+
+  property("alpine2") = forAll(genNEL(0.0, 10.0)) { g =>
+    alpine2(g) <= g.list.productl(sqrt)
+  } && alpine2(NonEmptyList(7.91705268, 4.81584232)) ~ (-6.1295, epsilonF(3))
 
   property("arithmeticMean") = forAll(genNEL(0.0, 1.0)) { g =>
     arithmeticMean(g) >= 0.0
