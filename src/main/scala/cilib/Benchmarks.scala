@@ -1,16 +1,16 @@
 package cilib
 package benchmarks
 
-import scalaz.{Foldable,Foldable1,Functor,NonEmptyList}
-import scalaz.syntax.apply._
-import scalaz.syntax.foldable1._
 import scalaz.std.list._
 import scalaz.std.option._
+import scalaz.syntax.apply._
+import scalaz.syntax.foldable1._
 import scalaz.syntax.std.option._
+import scalaz.{Foldable,Foldable1,Functor,NonEmptyList}
 
-import spire.math._
 import spire.algebra.{Field,IsReal,Order,NRoot,Ring,Signed,Trig}
 import spire.implicits._
+import spire.math._
 
 import Ops._
 import Sized._
@@ -1248,7 +1248,7 @@ object Benchmarks {
     }
   }
 
-  def shubert1[F[_]: Foldable, A: Field : Trig](x: Sized2[A]) = {
+  def shubert1[A: Field : Trig](x: Sized2[A]) = {
     val (x1, x2) = x
     val t1 = (1 to 5).sumr(j => j * cos((j + 1) * x1 + j))
     val t2 = (1 to 5).sumr(j => j * cos((j + 1) * x2 + j))
