@@ -3,11 +3,11 @@
 [![Build Status](https://travis-ci.org/cirg-up/benchmarks.svg?branch=master)](https://travis-ci.org/cirg-up/benchmarks)
 [![codecov.io](https://codecov.io/github/cirg-up/benchmarks/coverage.svg?branch=master)](https://codecov.io/github/cirg-up/benchmarks?branch=master)
 
-A collection of *n*-dimensional benchmark functions using [non/spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` types.
+A collection of *n*-dimensional benchmark functions using [spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` types.
 
 All functions have tests for both minimum values as well as known optima.
 
-## Functions
+## Definition
 
 Functions are defined using algebraic properties:
 
@@ -53,9 +53,9 @@ ackley2(z)
 // res7: Jet[Double] = (-191.2527797034299 + [1.7106168652106453, 3.4212337304212905]h)
 ```
 
-### Benchmarks
+### Functions
 
-Function | Dimension
+Name | Dimension
 -------- | ---------
 Absolute | *n*
 Ackley | *n*
