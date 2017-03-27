@@ -33,6 +33,7 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
+  // "-verbose",
   "-Xfuture"
 )
 
@@ -42,9 +43,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core" % scalazVersion,
-  "org.spire-math" %% "spire"       % spireVersion,
-  "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
+  "org.scalaz"     %% "scalaz-core"    % scalazVersion,
+  "org.spire-math" %% "spire"          % spireVersion,
+  "net.cilib"      %% "cilib-core"     % "2.0.0-M3",
+  "com.chuusai"    %% "shapeless"      % "2.3.2",
+  "org.scalacheck" %% "scalacheck"     % scalacheckVersion % "test",
   "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test"
 )
 
