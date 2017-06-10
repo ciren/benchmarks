@@ -1,5 +1,8 @@
 import sbt._
 import Keys._
+import sbtrelease._
+import sbtrelease.ReleasePlugin._
+import sbtrelease.ReleaseStateTransformations._
 
 val scalazVersion     = "7.2.7"
 val spireVersion      = "0.13.0"
@@ -9,18 +12,12 @@ organization := "net.cilib"
 
 name := "benchmarks"
 
-version := "0.1.1"
-
 scmInfo := Some(ScmInfo(url("https://github.com/cirg-up/benchmarks"),
     "git@github.com:cirg-up/benchmarks.git"))
 
 licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 homepage := Some(url("http://cirg-up.github.io/cilib"))
-
-scalaVersion := "2.11.8"
-
-crossScalaVersions := Seq("2.11.8", "2.12.0")
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -82,3 +79,21 @@ pomExtra := (
     }
   </developers>
 )
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  //publishSignedArtifacts,
+  setNextVersion,
+  commitNextVersion
+  //pushChanges
+)
+
+credentials ++= (for {
+    username <- Option(System.getenv("SONATYPE_USERNAME"))
+    password <- Option(System.getenv("SONATYPE_PASSWORD"))
+  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq

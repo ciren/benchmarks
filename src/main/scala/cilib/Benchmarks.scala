@@ -6,7 +6,7 @@ import scalaz.std.option._
 import scalaz.syntax.apply._
 import scalaz.syntax.foldable1._
 import scalaz.syntax.std.option._
-import scalaz.{Foldable,Foldable1,Functor,NonEmptyList}
+import scalaz.{Foldable,Foldable1,Functor}
 
 import spire.algebra.{Field,IsReal,Order,NRoot,Ring,Signed,Trig}
 import spire.implicits._
@@ -634,7 +634,7 @@ object Benchmarks {
   }
 
   def katsuura[F[_]: Foldable1, A: Field : IsReal : NRoot](x: F[A]) = {
-    val n = x.length
+    //val n = x.length
 
     x.toList.zipWithIndex.productl { case (xi, i) =>
       val t1 = i + 1
@@ -1489,7 +1489,7 @@ object Benchmarks {
     val t2 = (x1 - 1) ** 2 + (x3 - 1) ** 2
     val t3 = 90 * ((x3 ** 2 - x4) ** 2)
     val t4 = 10.1 * ((x2 - 1) ** 2)
-    val t5 = (x4 - 1) ** 2 + 19.8 * (x2 - 1) * (x4 - 1)
+    //val t5 = (x4 - 1) ** 2 + 19.8 * (x2 - 1) * (x4 - 1)
     t1 + t2 + t3 + t4 + t4
   }
 

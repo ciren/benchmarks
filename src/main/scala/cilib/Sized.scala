@@ -3,7 +3,7 @@ package cilib
 import scalaz.std.option._
 import scalaz.syntax.apply._
 import scalaz.syntax.foldable1._
-import scalaz.{Foldable,Id,OneAnd}
+import scalaz.{Foldable,Id}
 
 object Sized {
 
