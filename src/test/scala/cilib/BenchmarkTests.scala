@@ -4,7 +4,7 @@ package benchmarks
 import scalaz.std.anyVal._
 import scalaz.std.list._
 import scalaz.syntax.traverse1._
-import scalaz.{NonEmptyList,OneAnd}
+import scalaz.NonEmptyList
 
 import org.scalacheck._
 import org.scalacheck.Prop._

@@ -2,13 +2,12 @@ package cilib
 package benchmarks
 
 import org.scalacheck._
-import org.scalacheck.Prop._
 import org.scalacheck.Gen
 
 import scalaz.scalacheck.ScalaCheckBinding._
 import scalaz.std.list._
 import scalaz.syntax.apply._
-import scalaz.{Apply,NonEmptyList,OneAnd,IList}
+import scalaz.{NonEmptyList,IList}
 
 import Sized._
 
