@@ -7,7 +7,7 @@ import scalaz.{Ordering=>_,_}
 import Scalaz._
 import spire.algebra._
 import spire.implicits._
-import spire.math.{abs,ceil,cos,exp,floor,sin,round}
+import spire.math.{abs,cos,exp,sin,round}
 
 import cilib._
 
@@ -18,7 +18,6 @@ import benchmarks.Benchmarks._
 import benchmarks.dimension._
 import benchmarks.matrix._
 import benchmarks.implicits._
-import Helpers._
 
 /*
  * Based on: Problem Definitions and Evaluation Criteria for the CEC 2005

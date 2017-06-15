@@ -5,7 +5,6 @@ import shapeless._
 import shapeless.ops.nat._
 
 import dimension._
-import matrix._
 
 object Matrix {
 
@@ -15,7 +14,7 @@ object Matrix {
     })
 
   // identity matrix
-  def eye[N<:Nat](implicit ev: ToInt[N], gt: GTEq[N,nat._1]): Matrix[N,Double] = {
+  def eye[N<:Nat:GTEq1](implicit ev: ToInt[N]): Matrix[N,Double] = {
     val elements =
       for {
         c <- 0 until ev.apply

@@ -2,18 +2,13 @@ package benchmarks
 package cec2005
 
 import scala.io.Source.fromResource
-import scala.reflect.ClassTag
 
 import scalaz.Scalaz._
-
-import spire.implicits._
-import spire.algebra.{Field,Trig,Ring,NRoot}
 
 import shapeless._
 import shapeless.ops.nat._
 
 import dimension._
-import dimension.implicits._
 import matrix._
 import matrix.implicits._
 

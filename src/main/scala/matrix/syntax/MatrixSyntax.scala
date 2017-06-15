@@ -7,9 +7,7 @@ import _root_.scala.Predef.{any2stringadd => _, _}
 import scala.language.implicitConversions
 
 import shapeless._
-import shapeless.ops.nat._
 import spire.algebra.{Ring}
-import spire.implicits._
 
 import benchmarks.implicits._
 import dimension._

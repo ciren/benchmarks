@@ -4,7 +4,6 @@ package syntax
 
 import _root_.scala.Predef.{any2stringadd => _, _}
 import scala.language.implicitConversions
-import scala.reflect.ClassTag
 
 import scalaz._
 import Scalaz._
@@ -34,9 +33,6 @@ final class DimensionOps[N<:Nat,A](x: Dimension[N,A]) {
   def traverse[G[_]:Applicative,B](f: A => G[B]): G[Dimension[N,B]] =
     x.toVector.traverse(f).map(Sized.wrap[IndexedSeq[B],N])
 
-  def pairs(implicit gt: GTEq2[N]): Dimension[N,(A,A)] =
-    Sized.wrap(x.sliding(2).toVector.map { case Seq(x1, x2) => (x1, x2) })
-
   def shift(other: Dimension[N,A])(implicit ev: Ring[A]): Dimension[N,A] =
     Sized.wrap[IndexedSeq[A],N]((x zip other) map { case (xi, oi) => xi - oi })
 
@@ -46,6 +42,11 @@ final class DimensionOps[N<:Nat,A](x: Dimension[N,A]) {
     x.zip(other)
       .map { case (xi, oi) => xi * oi }
       .foldLeft(ev.zero)(_ + _)
+}
+
+final class DimensionGTEq2Ops[N<:Nat:GTEq2,A](x: Dimension[N,A]) {
+  lazy val pairs: Dimension[N,(A,A)] =
+    Sized.wrap(x.sliding(2).toVector.map { case Seq(x1, x2) => (x1, x2) })
 }
 
 final class Dimension2Ops[A](x: Dimension2[A]) {
@@ -66,6 +67,7 @@ final class Dimension6Ops[A](x: Dimension6[A]) {
 
 trait DimensionSyntax {
   implicit def ToDimensionOps[N<:Nat,A](v: Dimension[N,A]): DimensionOps[N,A] = new DimensionOps[N,A](v)
+  implicit def ToDimensionGTEq2Ops[N<:Nat:GTEq2,A](v: Dimension[N,A]): DimensionGTEq2Ops[N,A] = new DimensionGTEq2Ops[N,A](v)
   implicit def ToDimension2Ops[A](v: Dimension2[A]): Dimension2Ops[A] = new Dimension2Ops[A](v)
   implicit def ToDimension3Ops[A](v: Dimension3[A]): Dimension3Ops[A] = new Dimension3Ops[A](v)
   implicit def ToDimension4Ops[A](v: Dimension4[A]): Dimension4Ops[A] = new Dimension4Ops[A](v)
