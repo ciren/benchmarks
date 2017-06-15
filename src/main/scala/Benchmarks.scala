@@ -4,7 +4,7 @@ import _root_.scala.Predef.{any2stringadd => _, _}
 
 import shapeless._
 import shapeless.ops.nat._
-import scalaz.{Ordering => SOrdering, _}
+import scalaz.{Ordering => _, _}
 import scalaz.Scalaz._
 import spire.algebra.{Field,IsReal,Order,NRoot,Ring,Signed,Trig}
 import spire.implicits._
@@ -411,7 +411,7 @@ object Benchmarks {
     t1 + t2 + t3
   }
 
-  def elliptic[N<:Nat,A: Field](x: Dimension[N,A])(implicit gt: GTEq[N,_2]) = {
+  def elliptic[N<:Nat:GTEq2,A: Field](x: Dimension[N,A]) = {
     val n = x.size
     x.zipWithIndex.mapSum {
       case (xi, i) => (1e6 ** (i / (n - 1.0))) * (xi ** 2)
@@ -621,16 +621,13 @@ object Benchmarks {
     }
   }
 
-  def katsuura[N<:Nat, A: Field : IsReal : NRoot](x: Dimension[N,A]) = {
-    val n = x.size
-
+  def katsuura[N<:Nat, A: Field : IsReal : NRoot](x: Dimension[N,A]) =
     x.zipWithIndex.mapProduct { case (xi, i) =>
       val t1 = i + 1
       val d = 32
       val t2 = (1 to d).mapSum(k => floor((2 ** k) * xi) * (1.0 / (2 ** k)))
       1 + t1 * t2
     }
-  }
 
   def keane[A: Field : NRoot : Trig](x: Dimension2[A]) = {
     val (x1, x2) = x.tuple
@@ -1032,7 +1029,7 @@ object Benchmarks {
   def rastrigin[N<:Nat, A: Field : Trig](x: Dimension[N,A]) =
     10 * x.size + x.mapSum(xi => xi ** 2 - 10 * cos(2 * pi * xi))
 
-  def rosenbrock[N<:Nat, A: Ring](x: Dimension[N,A])(implicit gt: GTEq[N,_2]) =
+  def rosenbrock[N<:Nat:GTEq2, A: Ring](x: Dimension[N,A]) =
     x.toList.pairs.mapSum {
       case (xi, xi1) => 100 * ((xi1 - (xi ** 2)) ** 2) + ((xi - 1) ** 2)
     }
@@ -1116,7 +1113,7 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer6[N<:Nat, A: Field : NRoot : Trig](x: Dimension[N,A])(implicit gt: GTEq[N,_2]) =
+  def schaffer6[N<:Nat:GTEq2, A: Field : NRoot : Trig](x: Dimension[N,A]) =
     x.toList.pairs.mapSum {
       case (xi, xi1) =>
         val t1 = (xi ** 2) + (xi1 ** 2)
@@ -1320,7 +1317,7 @@ object Benchmarks {
       t1 + t2 + co
     }
 
-  def tripod[A: Order](x: Dimension2[A])(implicit A: Field[A]) = {
+  def tripod[A:Order:Signed](x: Dimension2[A])(implicit A: Field[A]) = {
     val (x1, x2) = x.tuple
     def p(xi: A) = if (xi >= A.zero) A.one else A.zero
 
@@ -1456,7 +1453,7 @@ object Benchmarks {
     val t3 = 90 * ((x3 ** 2 - x4) ** 2)
     val t4 = 10.1 * ((x2 - 1) ** 2)
     val t5 = (x4 - 1) ** 2 + 19.8 * (x2 - 1) * (x4 - 1)
-    t1 + t2 + t3 + t4 + t4
+    t1 + t2 + t3 + t4 + t5
   }
 
   def xinSheYang2[N<:Nat, A: Field : Signed : Trig](x: Dimension[N,A]) = {

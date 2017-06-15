@@ -2,6 +2,7 @@ package benchmarks
 package cec2005
 
 import spire.math.{ceil,floor}
+import spire.implicits._
 import shapeless._
 import shapeless.ops.nat.ToInt
 
@@ -13,43 +14,43 @@ import benchmarks.matrix._
 import benchmarks.matrix.implicits._
 import Helpers._
 
-trait F1Params[N<:Nat,A]  { val params: (Dimension[N,A], A) }
-trait F2Params[N<:Nat,A]  { val params: (Dimension[N,A], A) }
-trait F3Params[N<:Nat,A]  { val params: (Dimension[N,A], Matrix[N,A], A) }
-trait F4Params[N<:Nat,A]  { val params: (Dimension[N,A], A, RVar[A]) }
-trait F5Params[N<:Nat,A]  { val params: (Dimension[N,A], Matrix[N,A], Double) }
-trait F6Params[N<:Nat,A]  { val params: (Dimension[N,A], Double) }
-trait F7Params[N<:Nat,A]  { val params: (Dimension[N,A], Matrix[N,A], A) }
-trait F8Params[N<:Nat,A]  { val params: (Dimension[N,A], Matrix[N,A], A) }
-trait F9Params[N<:Nat,A]  { val params: (Dimension[N,A], Double) }
-trait F10Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,A], A) }
-trait F11Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,A], A) }
+trait F1Params [N<:Nat,A] { val params: (Dimension[N,A], A) }
+trait F2Params [N<:Nat,A] { val params: (Dimension[N,A], A) }
+trait F3Params [N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
+trait F4Params [N<:Nat,A] { val params: (Dimension[N,A], A, RVar[A]) }
+trait F5Params [N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], Double) }
+trait F6Params [N<:Nat,A] { val params: (Dimension[N,A], Double) }
+trait F7Params [N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
+trait F8Params [N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
+trait F9Params [N<:Nat,A] { val params: (Dimension[N,A], Double) }
+trait F10Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
+trait F11Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
 trait F12Params[N<:Nat,A] {
-  val params: (Dimension[N,A], Matrix[N,A], Matrix[N,A], A)
+  val params: (Dimension[N,A], Matrix[N,N,A], Matrix[N,N,A], A)
 }
 trait F13Params[N<:Nat,A] { val params: (Dimension[N,A], Double) }
-trait F14Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,A], A) }
+trait F14Params[N<:Nat,A] { val params: (Dimension[N,A], Matrix[N,N,A], A) }
 trait F15Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A)
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A)
 }
 trait F16Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A)
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A)
 }
 trait F17Params[A] { val params: (A, RVar[A]) }
 trait F18Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A)
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A)
 }
 trait F19Params[A] { val params: A }
 trait F20Params[N<:Nat,A] { val params: (Dimension10[Dimension[N,A]], A) }
 trait F21Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A)
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A)
 }
 trait F22Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A)
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A)
 }
 trait F23Params[A] { val params: A }
 trait F24Params[N<:Nat,A] {
-  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,A]], A, RVar[A])
+  val params: (Dimension10[Dimension[N,A]], Dimension10[Matrix[N,N,A]], A, RVar[A])
 }
 trait F25Params[A] { val params: A }
 
@@ -149,8 +150,8 @@ trait Params {
     new F12Params[N,Double] {
       val params = (
         shiftFromResourceF("schwefel_213_data.txt", _.last),
-        matrixFromResourceF("schwefel_213_data.txt", _.take(100)).t,
-        matrixFromResourceF("schwefel_213_data.txt", _.drop(100).take(100)).t,
+        matrixFromResourceF("schwefel_213_data.txt", _.take(100)),
+        matrixFromResourceF("schwefel_213_data.txt", _.drop(100).take(100)),
         fbiasFromResource(12)
       )
     }
@@ -173,7 +174,7 @@ trait Params {
     new F15Params[N,Double] {
       val params = (
         Sized.wrap(shiftsFromResource("hybrid_func1_data.txt").toVector),
-        Sized.wrap(Vector.fill(10)(Matrix.eye[N])),
+        Sized.wrap(Vector.fill(10)(Matrix.eye[N,Double])),
         fbiasFromResource(15)
       )
     }

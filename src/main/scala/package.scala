@@ -7,7 +7,6 @@ package object benchmarks {
   object implicits
     extends RangeSyntax
     with ListSyntax
-    with IndexedSeqSyntax
     with DimensionSyntax
     with MatrixSyntax
     with cec2005.Params

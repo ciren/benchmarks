@@ -1,8 +1,6 @@
 package benchmarks
 package cec2005
 
-import scalaz.{NonEmptyList,OneAnd}
-import scalaz.Scalaz._
 import org.scalacheck._
 import org.scalacheck.Prop._
 
@@ -10,7 +8,7 @@ import shapeless._
 import shapeless.ops.nat.ToInt
 
 import spire.implicits._
-import spire.math.{abs,ceil,floor,pi}
+import spire.math.{abs,pi}
 
 import cilib._
 

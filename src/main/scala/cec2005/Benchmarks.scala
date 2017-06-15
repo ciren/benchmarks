@@ -7,7 +7,7 @@ import scalaz.{Ordering=>_,_}
 import Scalaz._
 import spire.algebra._
 import spire.implicits._
-import spire.math.{abs,ceil,cos,exp,floor,sin,round}
+import spire.math.{abs,cos,exp,sin,round}
 
 import cilib._
 
@@ -18,7 +18,6 @@ import benchmarks.Benchmarks._
 import benchmarks.dimension._
 import benchmarks.matrix._
 import benchmarks.implicits._
-import Helpers._
 
 /*
  * Based on: Problem Definitions and Evaluation Criteria for the CEC 2005
@@ -204,12 +203,11 @@ object Benchmarks {
           (z.toList :+ z.head)
             .pairs
             .mapSum { case (a, b) => schaffer6(Sized(a, b)) } + fbias
-          // pairs.mapSum(schaffer6(_)) + fbias
       }
 
   private[this] def hybrid[N<:Nat,A:Field:Signed:Trig:Ordering]
     (o: Dimension10[Dimension[N,A]],
-     m: Dimension10[Matrix[N,A]],
+     m: Dimension10[Matrix[N,N,A]],
      f: Dimension10[Dimension[N,A] => A],
      λ: Dimension10[A],
      σ: Dimension10[A]
@@ -252,7 +250,7 @@ object Benchmarks {
 
   private[this] def hybridR[N<:Nat,A:Field:Ordering:Signed:Trig]
     (o: Dimension10[Dimension[N,A]],
-     m: Dimension10[Matrix[N,A]],
+     m: Dimension10[Matrix[N,N,A]],
      f: Dimension10[Dimension[N,A] => RVar[A]],
      λ: Dimension10[A],
      σ: Dimension10[A]

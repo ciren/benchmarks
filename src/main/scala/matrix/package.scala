@@ -6,8 +6,7 @@ import dimension._
 import matrix.syntax._
 
 package object matrix {
-  // only square matrices for now
-  type Matrix[N<:Nat,A] = Dimension[N,Dimension[N,A]]
+  type Matrix[C<:Nat,R<:Nat,A] = Dimension[C,Dimension[R,A]]
 
   object implicits extends MatrixSyntax
 }

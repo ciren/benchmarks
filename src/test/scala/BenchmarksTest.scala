@@ -522,7 +522,8 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("needleEye") = forAll(genSized(-10.0, 10.0)) { g =>
     needleEye(0.0001)(g) >= 0.0
   } && forAll(genConst(0.0001)) { g =>
-    needleEye(0.0001)(g) === 0.0
+    needleEye(0.0001)(g) === 0.0 &&
+    needleEye(0.0001)(Sized(0.00001)) === 1.0
   }
 
   property("newFunction") = forAll(gen2(-10.0, 10.0)) { g =>

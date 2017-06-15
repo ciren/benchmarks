@@ -2,13 +2,8 @@ package benchmarks
 package cec2005
 
 import org.scalacheck._
-import org.scalacheck.Prop._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
-
-import scalaz.scalacheck.ScalaCheckBinding._
-import scalaz.{Apply,NonEmptyList,OneAnd,IList}
-import scalaz.Scalaz._
 
 import dimension.Generators._
 import dimension._

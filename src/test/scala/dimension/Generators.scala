@@ -51,10 +51,10 @@ object Generators {
       xs <- Gen.containerOfN[Vector,A](50, c(l, u))
     } yield Sized.wrap[IndexedSeq[A],_50](xs)
 
-  def genSized[A:Choose](l: A, u: A): Gen[Dimension[_100,A]] =
+  def genSized[A:Choose](l: A, u: A): Gen[Dimension[_10,A]] =
     for {
-      xs <- Gen.containerOfN[Vector,A](100, c(l, u))
+      xs <- Gen.containerOfN[Vector,A](10, c(l, u))
     } yield Sized.wrap(xs)
 
-  def genConst[N<:Nat, A:Choose](v: A) = genSized(v, v)
+  def genConst[A:Choose](v: A) = genSized(v, v)
 }
