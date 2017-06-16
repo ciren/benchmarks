@@ -4,7 +4,7 @@ scala:
 jdk:
 - oraclejdk8
 script:
-- sbt clean coverage test
+- travis_wait 60 sbt clean coverage test
 notifications:
   irc: irc.freenode.org#cilib
   webhooks:
@@ -15,7 +15,7 @@ notifications:
     on_start: false
 after_success:
 - pip install --user codecov && codecov
-- "[[ $TRAVIS_BRANCH == \"master\" ]] && { sbt publish; };"
+- "[[ $TRAVIS_BRANCH == \"master\" ]] && { travis_wait 60 sbt publish; };"
 env:
   global:
   - secure: qmlLscS78OMGDv7sjWw+4MebzW5HxHZopMEhiNheF4OLDwOLjtjV3ZIUy3Vq3FhHpD2SnzO91co0i/PnNSXO0K6F6DI3UcE/y0syG8NehgxzTT0rsosHKaQdCw1MG8fiaYGvP3JUGmt8R7VYsuZNc2xPweMdrQV+/nLcmUPp7s0NnuBzMTfi9utX3lHGiiFoBm5EH7C1q2JKrxcrYOc31jVCw4iblQcnyudKlCm/R6o5C7DJ8h5fwNcn3zDtRc7wGQ/3KKD9oFXEcpEInwkjJZfZjj6Xsp4o6JhC7nbok+8+jQ1Cygud0NiVfXqA8lAcsQYtLAHnPhlB4orY+Pvre/MFsIeemOZwOkg4KGxUzrhZ0wSlBXInBW+XnRYTz9U6kh8nJLmbw5FgQo/5u6t67tB5bYFsS4HH7wDU3YvbzChcjv/jb3JXRMQkGIy/fSlIziE8YI3Z43nuJd9efQTeOMAfX8eQdvPxNNkCKTef5KDlJzLeTF2ZFK/olqSfFRfNqJTAkTaunNwcZLy03715qCwn+ja9Mto4IJVp/1PKPOgwYx5MAwOHiq8F77NYC0azASSNeEtGoGBWYtWpeTx0BpwPErgqDidHhO4bCdOcvYJPD6i1svNHwM5kHKZAB/z10QHBYnFddI3GZyDrbIJK89s0Tr31Xu3GyVib+dA9cI0=
