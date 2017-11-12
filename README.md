@@ -3,17 +3,19 @@
 [![Build Status](https://travis-ci.org/cirg-up/benchmarks.svg?branch=master)](https://travis-ci.org/cirg-up/benchmarks)
 [![codecov.io](https://codecov.io/github/cirg-up/benchmarks/coverage.svg?branch=master)](https://codecov.io/github/cirg-up/benchmarks?branch=master)
 
-A collection of *n*-dimensional benchmark functions using [spire](https://github.com/non/spire)'s numeric types and [scalaz](https://github.com/scalaz/scalaz)'s `Foldable` types.
+A collection of *n*-dimensional benchmark functions using [spire](https://github.com/non/spire)'s numeric types and [shapeless](https://github.com/milessabin/shapeless)'s `Sized` type.
 
 All functions have tests for both minimum values as well as known optima.
+
+Additionally, the CEC 2005 benchmark function set has been implemented in 2, 10, 30, and 50 dimensions from *Problem Definitions and Evaluation Criteria for the CEC 2005 Special Session on Real-Parameter Optimization (May 2005)* and tested against the [java implementation](http://web.mysites.ntu.edu.sg/epnsugan/PublicSite/Shared%20Documents/CEC2005/Java-ypchen-050309.zip).
 
 ## Definition
 
 Functions are defined using algebraic properties:
 
 ```scala
-def rastrigin[F[_]: Foldable1, A: Field : IsReal : Trig](x: F[A]) =
-  10 * x.length + x.sum(xi => xi ** 2 - 10 * cos(2 * pi * xi))
+def rastrigin[N<:Nat, A: Field : Trig](x: Dimension[N,A]) =
+  10 * x.size + x.mapSum(xi => xi ** 2 - 10 * cos(2 * pi * xi))
 ```
 
 ## Examples
@@ -23,9 +25,12 @@ Functions can be used with different numerical types:
 ### Double
 
 ```scala
-import scalaz.NonEmptyList
+import shapeless._
+import spire.implicits._
 
-val x = NonEmptyList(1.0, 2.0, 3.0)
+import benchmarks.Benchmarks._
+
+val x = Sized(1.0, 2.0, 3.0)
 spherical(x)
 // res1: Double = 14.0
 
@@ -36,14 +41,17 @@ ackley2(z)
 
 ### Jet (Forward AD)
 ```scala
+import shapeless._
 import spire.math._
 import spire.implicits._
+
+import benchmarks.Benchmarks._
 
 implicit val jd = JetDim(2)
 
 val a = 1.0 + Jet.h[Double](0)
 val b = 2.0 + Jet.h[Double](1)
-val x = NonEmptyList(a, b)
+val x = Sized(a, b)
 
 spherical(x)
 // res5: Jet[Double] = (5.0 + [2.0, 4.0]h)
@@ -53,7 +61,21 @@ ackley2(z)
 // res7: Jet[Double] = (-191.2527797034299 + [1.7106168652106453, 3.4212337304212905]h)
 ```
 
-### Functions
+### CEC 2005
+```scala
+import shapeless._
+import spire.implicits._
+
+import benchmarks.cec2005.Benchmarks._
+import benchmarks.implicits._
+
+val x = Sized(1.0, 2.0)
+
+f1(x)
+// res1: Double = 4412.64790162
+```
+
+## Functions
 
 Name | Dimension
 -------- | ---------

@@ -4,9 +4,10 @@ import sbtrelease._
 import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 
-val scalazVersion     = "7.2.7"
-val spireVersion      = "0.13.0"
+val scalazVersion     = "7.2.15"
 val scalacheckVersion = "1.12.6"
+val spireVersion      = "0.13.0"
+val shapelessVersion  = "2.3.2"
 
 organization := "net.cilib"
 
@@ -27,24 +28,28 @@ scalacOptions ++= Seq(
   "-language:higherKinds",
   "-language:experimental.macros",
   "-unchecked",
-  "-Xfatal-warnings",
+  // "-Xfatal-warnings",
   "-Xlint",
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
+  // "-verbose",
   "-Xfuture"
 )
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots"),
   "bintray/non" at "http://dl.bintray.com/non/maven"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core" % scalazVersion,
-  "org.spire-math" %% "spire"       % spireVersion,
-  "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
+  "org.scalaz"     %% "scalaz-core"    % scalazVersion,
+  "org.spire-math" %% "spire"          % spireVersion,
+  "net.cilib"      %% "cilib-core"     % "2.0.0-SNAPSHOT",
+  "com.chuusai"    %% "shapeless"      % shapelessVersion,
+  "org.scalacheck" %% "scalacheck"     % scalacheckVersion % "test",
   "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test"
 )
 
