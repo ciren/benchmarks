@@ -5,17 +5,33 @@ package syntax
 import org.scalacheck._
 import org.scalacheck.Prop._
 
+import cilib._
 import shapeless._
+import spire.math.Interval
 import spire.implicits._
 
 import benchmarks.implicits._
+import Generators._
 
 object MatrixSyntaxTests extends Properties("Matrix Syntax Tests") {
 
-  val doubleGen = Gen.choose(-1000.0, 1000.0)
-  val gen = Gen.listOf(doubleGen)
+  property("Scalar-matrix multiplication") = forAll { (i: Interval[Double], s: Double) =>
+    val m = Matrix.random[nat._2](i) eval RNG.fromTime
+    val r = m * s
+    r.size === 2 &&
+    r.forall(_.size === 2) &&
+    m.toList.flatten.zip(r.toList.flatten).forall { case (mi, ri) => ri === mi * s }
+  }
 
-  property("Matrix-matrix multiplication") = forAll { (a: List[Double]) =>
+  property("Scalar-matrix division") = forAll { (i: Interval[Double], s: Double) =>
+    val m = Matrix.random[nat._2](i) eval RNG.fromTime
+    val r = m / s
+    r.size === 2 &&
+    r.forall(_.size === 2) &&
+    m.toList.flatten.zip(r.toList.flatten).forall { case (mi, ri) => ri === mi / s }
+  }
+
+  property("Matrix-matrix multiplication") = {
     val a = Matrix.wrap[nat._2,nat._2,Double](Vector(1.0, 2.0), Vector(3.0, 4.0))
     val b = Matrix.wrap[nat._2,nat._2,Double](Vector(5.0, 6.0), Vector(7.0, 8.0))
     val c = Matrix.wrap[nat._2,nat._2,Double](Vector(23.0, 34.0), Vector(31.0, 46.0))
@@ -31,4 +47,5 @@ object MatrixSyntaxTests extends Properties("Matrix Syntax Tests") {
     (i |*| i) === i &&
     (j |*| j) === j
   }
+
 }
