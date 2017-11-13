@@ -8,8 +8,6 @@ import shapeless._
 import shapeless.nat._
 import spire.implicits._
 
-import cilib._
-
 import Benchmarks._
 import benchmarks.dimension._
 import benchmarks.dimension.Generators._
