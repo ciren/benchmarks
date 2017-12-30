@@ -304,6 +304,17 @@ object BenchmarksTest extends Properties("Benchmarks") {
     elliptic(g) >= 0.0
   } && elliptic(Sized(0.0, 0.0, 0.0)) === 0.0
 
+  property("equalMaxima") = forAll(gen1(0.0, 1.0)) { g =>
+    equalMaxima(g) >= 0.0 &&
+    equalMaxima(g) <= 1.0
+  } && {
+    (0 to 10).toList forall { i =>
+      val x = Sized(0.1 * i)
+      if (i % 2 == 0) equalMaxima(x) ~ (0.0, epsilonF(15))
+      else equalMaxima(x) ~ (1.0, epsilonF(15))
+    }
+  }
+
   property("exponential1") = forAll(genSized(-1.0, 1.0)) { g =>
     exponential1(g) >= -1.0
   } && exponential1(zero3) === -1.0
@@ -311,6 +322,20 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("exponential2") = forAll(gen2(0.0, 20.0)) { g =>
     exponential2(g) >= 0.0
   } && exponential2(Sized(1.0, 10.0)) ~ epsilon
+
+  property("fiveUnevenPeakTrap") = forAll(gen1(0.0, 30.0)) { g =>
+    fiveUnevenPeakTrap(g) >= 0.0
+  } && {
+    fiveUnevenPeakTrap(Sized(0.0))  === 200.0 &&
+    fiveUnevenPeakTrap(Sized(2.5))  === 0.0 &&
+    fiveUnevenPeakTrap(Sized(5.0))  === 160.0 &&
+    fiveUnevenPeakTrap(Sized(7.5))  === 0.0 &&
+    fiveUnevenPeakTrap(Sized(12.5)) === 140.0 &&
+    fiveUnevenPeakTrap(Sized(17.5)) === 0.0 &&
+    fiveUnevenPeakTrap(Sized(22.5)) === 160.0 &&
+    fiveUnevenPeakTrap(Sized(27.5)) === 0.0 &&
+    fiveUnevenPeakTrap(Sized(30.0)) === 200.0
+  }
 
   property("freudensteinRoth") = forAll(gen2(-10.0, 10.0)) { g =>
     freudensteinRoth(g) >= 0.0
@@ -786,6 +811,8 @@ object BenchmarksTest extends Properties("Benchmarks") {
   }
 
   property("shubert") = forAll(gen2(-10.0, 10.0)) { g =>
+    shubert(g)  >= -300.0 &&
+    shubert(g)  <= 200.0 &&
     shubert1(g) >= -186.7309 &&
     shubert3(g) >= -24.06249 &&
     shubert4(g) >= -29.016015
@@ -881,6 +908,11 @@ object BenchmarksTest extends Properties("Benchmarks") {
   property("tripod") = forAll(gen2(-100.0, 100.0)) { g =>
     tripod(g) >= 0.0
   } && tripod(Sized(0.0, -50.0)) === 0.0
+
+  property("unevenDecreasingMaxima") = forAll(gen1(0.0, 1.0)) { g =>
+    unevenDecreasingMaxima(g) >= 0.0 &&
+    unevenDecreasingMaxima(g) <= 1.0
+  }
 
   property("ursem1") = forAll(gen2D((-2.5, 3.0), (-2.0, 2.0))) { g =>
     ursem1(g) >= -4.8168

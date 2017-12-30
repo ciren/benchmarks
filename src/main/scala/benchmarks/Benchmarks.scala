@@ -217,12 +217,12 @@ object Benchmarks {
     -((u * exp(abs(1 - v / pi))) ** 2) / 30.0
   }
 
-  def centralTwoPeakTrap[A: Order](x1: A)(implicit ev: Field[A]) =
-    if      (x1 < 0)   ev.zero
+  def centralTwoPeakTrap[A:Field:Order](x1: A) =
+    if      (x1 < 0)   implicitly[Field[A]].zero
     else if (x1 <= 10) (-160.0 / 10) * x1
     else if (x1 <= 15) (-160.0 / 5) * (15 - x1)
     else if (x1 <= 20) (-200.0 / 5) * (x1 - 15)
-    else               ev.zero - 200
+    else               implicitly[Field[A]].zero - 200
 
   def chichinadze[A: Field : Trig](x: Dimension2[A]) = {
     val (x1, x2) = x.tuple
@@ -418,6 +418,9 @@ object Benchmarks {
     }
   }
 
+  def equalMaxima[A:Field:Trig](x: Dimension1[A]) =
+    sin(5 * pi * x.head) ** 6
+
   def exponential1[N<:Nat, A: Field : Trig](x: Dimension[N,A]) =
     -exp(-0.5 * x.mapSum(_ ** 2))
 
@@ -430,6 +433,17 @@ object Benchmarks {
       val t4 = 5 * exp(-i.toDouble)
       (t1 - t2 - t3 + t4) ** 2
     }
+  }
+
+  def fiveUnevenPeakTrap[A:Field:Order](x: Dimension1[A]) = x.head match {
+    case xi if xi - 2.5  < 0 => 80 * (2.5 - xi)
+    case xi if xi - 5.0  < 0 => 64 * (xi - 2.5)
+    case xi if xi - 7.5  < 0 => 64 * (7.5 - xi)
+    case xi if xi - 12.5 < 0 => 28 * (xi - 7.5)
+    case xi if xi - 17.5 < 0 => 28 * (17.5 - xi)
+    case xi if xi - 22.5 < 0 => 32 * (xi - 17.5)
+    case xi if xi - 27.5 < 0 => 32 * (27.5 - xi)
+    case xi                  => 80 * (xi - 27.5)
   }
 
   def freudensteinRoth[A: Ring](x: Dimension2[A]) = {
@@ -478,7 +492,7 @@ object Benchmarks {
       cos(xi / sqrt(i + 1.0))
     }
 
-    1 + x.mapSum(_ ** 2) * (1.0 / 4000.0) - prod
+    1 + x.mapSum(_ ** 2) / 4000.0 - prod
   }
 
   def gulf[A: Field : NRoot : Signed : Trig](x: Dimension3[A]) = {
@@ -1219,6 +1233,11 @@ object Benchmarks {
     }
   }
 
+  def shubert[N<:Nat,A:Field:Trig](x: Dimension[N,A]) =
+    -x.mapProduct { xi =>
+      (1 to 5).mapSum(j => j * cos((j + 1) * xi + j))
+    }
+
   def shubert1[A: Field : Trig](x: Dimension2[A]) = {
     val (x1, x2) = x.tuple
     val t1 = (1 to 5).mapSum(j => j * cos((j + 1) * x1 + j))
@@ -1243,7 +1262,7 @@ object Benchmarks {
 
   def sixHumpCamelback[A: Field](x: Dimension2[A]) = {
     val (x1, x2) = x.tuple
-    val tX1 = 4 * (x1 ** 2) - 2.1 * (x1 ** 4) + (1.0 / 3.0) * (x1 ** 6)
+    val tX1 = 4 * (x1 ** 2) - 2.1 * (x1 ** 4) + ((x1 ** 6) / 3.0)
     val tX2 = x1 * x2 - 4 * (x2 ** 2) + 4 * (x2 ** 4)
     tX1 + tX2
   }
@@ -1325,6 +1344,13 @@ object Benchmarks {
     val t2 = abs(x1 + 50 * p(x2) * (1 - 2 * p(x1)))
     val t3 = abs(x2 + 50 * (1 - 2 * p(x2)))
     t1 + t2 + t3
+  }
+
+  def unevenDecreasingMaxima[A:Field:NRoot:Trig](x: Dimension1[A]) = {
+    val xi = x.head
+    val t1 = exp(-2 * log(2) * (((xi - 0.08) / 0.854) ** 2))
+    val t2 = sin(5 * pi * (xi.**(3.0 / 4.0) - 0.05)) ** 6
+    t1 * t2
   }
 
   def ursem1[A: Field : Trig](x: Dimension2[A]) = {
@@ -1410,7 +1436,7 @@ object Benchmarks {
     t1 + t2
   }
 
-  def weierstrass[N<:Nat, A: Field : Trig](x: Dimension[N,A]) = {
+  def weierstrass[N<:Nat,A:Field:Trig](x: Dimension[N,A]) = {
     val a = 0.5
     val b = 3.0
     val kmax = 20

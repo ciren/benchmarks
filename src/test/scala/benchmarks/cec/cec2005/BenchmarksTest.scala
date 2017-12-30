@@ -1,4 +1,5 @@
 package benchmarks
+package cec
 package cec2005
 
 import org.scalacheck._
@@ -12,11 +13,11 @@ import spire.math.{abs,pi}
 
 import cilib._
 
+import benchmarks.cec.Helper
 import benchmarks.dimension._
 import benchmarks.implicits.{f4Params=>_, f17Params=>_, f24Params=>_, _}
 import Benchmarks._
 import Generators._
-import Helpers._
 
 object BenchmarksTest extends Properties("CEC2005 Benchmarks") {
   implicit class DoubleEpsilonOps(val d: Double) extends AnyVal {
@@ -26,6 +27,8 @@ object BenchmarksTest extends Properties("CEC2005 Benchmarks") {
   sealed trait FBias { val fbias: Double }
 
   val r = RNG init 0
+  val helper = Helper("cec2005")
+
   implicit val p2:  Dimension[_2, Double] = Sized(0.0, 1.0)
   implicit val p10: Dimension[_10,Double] = Sized.wrap((0 until 10).toVector.map(_.toDouble))
   implicit val p30: Dimension[_30,Double] = Sized.wrap((0 until 30).toVector.map(_.toDouble))
@@ -33,20 +36,20 @@ object BenchmarksTest extends Properties("CEC2005 Benchmarks") {
 
   implicit def f4ParamsNoNoise[N<:Nat:ToInt] = new F4Params[N,Double] {
     val params = (
-      shiftFromResource[N]("schwefel_102_data.txt"),
-      fbiasFromResource(4),
+      helper.shiftFromResource[N]("schwefel_102_data.txt"),
+      helper.fbiasFromResource(4),
       RVar.point(0.0)
     )
   }
   implicit val f17ParamsNoNoise = new F17Params[Double] {
-    val params = (fbiasFromResource(17), RVar.point(0.0))
+    val params = (helper.fbiasFromResource(17), RVar.point(0.0))
   }
   implicit def f24ParamsNoNoise[N<:Nat:CECSized](implicit ev: ToInt[N]) =
     new F24Params[N,Double] {
       val params = (
-        Sized.wrap(shiftsFromResource("hybrid_func4_data.txt").toVector),
-        matrix10FromResource(s"hybrid_func4_M_D${ev.apply}.txt"),
-        fbiasFromResource(24),
+        Sized.wrap(helper.shiftsFromResource("hybrid_func4_data.txt").toVector),
+        helper.matrix10FromResource(s"hybrid_func4_M_D${ev.apply}.txt"),
+        helper.fbiasFromResource(24),
         RVar.point(0.0)
       )
     }

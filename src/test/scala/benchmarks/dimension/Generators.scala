@@ -13,6 +13,9 @@ import org.scalacheck.Gen.Choose
 object Generators {
   def c[A:Choose](l: A, u: A) = Gen.choose(l, u)
 
+  def gen1[A:Choose](l: A, u: A): Gen[Dimension1[A]] =
+    c(l, u).map(Sized(_))
+
   def gen2[A:Choose](l: A, u: A): Gen[Dimension2[A]] =
     (c(l, u) |@| c(l, u)) { (a, b) => Sized(a, b) }
 
@@ -40,6 +43,11 @@ object Generators {
     for {
       xs <- Gen.containerOfN[Vector,A](10, c(l, u))
     } yield Sized.wrap[IndexedSeq[A],_10](xs)
+
+  def gen16[A:Choose](l: A, u: A): Gen[Dimension[_16,A]] =
+    for {
+      xs <- Gen.containerOfN[Vector,A](16, c(l, u))
+    } yield Sized.wrap[IndexedSeq[A],_16](xs)
 
   def gen30[A:Choose](l: A, u: A): Gen[Dimension[_30,A]] =
     for {

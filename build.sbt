@@ -4,7 +4,7 @@ import sbtrelease._
 import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 
-val scalazVersion     = "7.2.15"
+val scalazVersion     = "7.2.7"
 val scalacheckVersion = "1.12.6"
 val spireVersion      = "0.13.0"
 val shapelessVersion  = "2.3.2"

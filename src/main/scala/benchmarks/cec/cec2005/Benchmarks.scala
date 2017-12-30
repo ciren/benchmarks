@@ -1,4 +1,5 @@
 package benchmarks
+package cec
 package cec2005
 
 import _root_.scala.Predef.{any2stringadd => _, _}
@@ -7,7 +8,7 @@ import scalaz.{Ordering=>_,_}
 import Scalaz._
 import spire.algebra._
 import spire.implicits._
-import spire.math.{abs,cos,exp,sin,round}
+import spire.math.{abs,cos,sin,round}
 
 import cilib._
 
@@ -15,8 +16,8 @@ import shapeless._
 import shapeless.ops.nat._
 
 import benchmarks.Benchmarks._
+import benchmarks.cec.Helper
 import benchmarks.dimension._
-import benchmarks.matrix._
 import benchmarks.implicits._
 
 /*
@@ -205,120 +206,31 @@ object Benchmarks {
             .mapSum { case (a, b) => schaffer6(Sized(a, b)) } + fbias
       }
 
-  private[this] def hybrid[N<:Nat,A:Field:Signed:Trig:Ordering]
-    (o: Dimension10[Dimension[N,A]],
-     m: Dimension10[Matrix[N,N,A]],
-     f: Dimension10[Dimension[N,A] => A],
-     λ: Dimension10[A],
-     σ: Dimension10[A]
-   )(implicit ev: ToInt[N]): Dimension[N,A] => A = {
-    val bias = Sized(0, 100, 200, 300, 400, 500, 600, 700, 800, 900)
-    val C = 2000.0
-    val fmax = (f zip λ zip m) map { case ((fi, λi), mi) =>
-      val temp: Dimension[N,A] = Sized.wrap(Vector.fill(ev.apply)(5.0 / λi))
-      val point = temp rotate mi
-      abs(fi(point))
-    }
-    x => {
-      val zipped = (o zip m zip f zip λ zip σ zip bias zip fmax) map {
-        case ((((((oi, mi), fi), λi), σi), bi), fmaxi) =>
-          val zi = x.shift(oi).map(_ / λi).rotate(mi)
-          (oi, mi, fi, λi, σi, bi, fmaxi, zi)
-      }
-      val weights = zipped map {
-        case (oi, _, _, _, σi, _, _, zi) =>
-          val denom = (x zip oi) mapSum { case (xk, oik) => (xk - oik) ** 2 }
-          exp(-denom / (2.0 * zi.size * σi * σi))
-      }
-
-      val maxWeight = weights.max
-      val w1mMaxPow = 1.0 - (maxWeight ** 10)
-      val adjustedWeights = weights map { wi =>
-        if (wi != maxWeight) wi * w1mMaxPow
-        else wi
-      }
-      val wSum = adjustedWeights mapSum (xi => xi)
-      // normalize the weights
-      val normWeights = adjustedWeights map { _ / wSum }
-
-      (zipped zip normWeights) mapSum {
-        case ((_, _, fi, _, _, bi, fmaxi, zi), wi) =>
-          wi * ((C * fi(zi) / fmaxi) + bi)
-      }
-    }
-  }
-
-  private[this] def hybridR[N<:Nat,A:Field:Ordering:Signed:Trig]
-    (o: Dimension10[Dimension[N,A]],
-     m: Dimension10[Matrix[N,N,A]],
-     f: Dimension10[Dimension[N,A] => RVar[A]],
-     λ: Dimension10[A],
-     σ: Dimension10[A]
-   )(implicit ev: ToInt[N]): Dimension[N,A] => RVar[A] = {
-    val bias = Sized(0, 100, 200, 300, 400, 500, 600, 700, 800, 900)
-    val C = 2000.0
-    val fmax: RVar[Dimension10[A]] = (f zip λ zip m) traverse { case ((fi, λi), mi) =>
-      val temp: Dimension[N,A] = Sized.wrap(Vector.fill(ev.apply)(5.0 / λi))
-      val point = temp rotate mi
-      fi(point).map(abs(_))
-    }
-    x => {
-      val zipped = fmax map { fMax => (o zip m zip f zip λ zip σ zip bias zip fMax) map {
-        case ((((((oi, mi), fi), λi), σi), bi), fmaxi) =>
-          val zi = x.shift(oi).map(_ / λi).rotate(mi)
-          (oi, mi, fi, λi, σi, bi, fmaxi, zi)
-      }}
-      val weights = zipped map { _.map {
-        case (oi, _, _, _, σi, _, _, zi) =>
-          val denom = (x zip oi) mapSum { case (xk, oik) => (xk - oik) ** 2 }
-          exp(-denom / (2.0 * zi.size * σi * σi))
-        }
-      }
-
-      val normWeights = for {
-        ws       <- weights
-        maxWeight = ws.max
-        w1mMaxPow = 1.0 - (maxWeight ** 10)
-        adjusted  = ws.map(wi => if (wi != maxWeight) wi * w1mMaxPow else wi)
-        wSum      = adjusted mapSum (xi => xi)
-      } yield adjusted map { _ / wSum }
-
-      for {
-        z  <- zipped
-        nw <- normWeights
-        rs <- (z zip nw) traverse {
-          case ((_, _, fi, _, _, bi, fmaxi, zi), wi) =>
-            fi(zi) map { fiz => wi * (C * fiz / fmaxi + bi) }
-        }
-      } yield rs.mapSum(xi => xi)
-    }
-  }
-
   /*
    * F15 Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f15[N<:Nat:ToInt,A:Trig:NRoot:Signed:Ordering]
-    (implicit P: F15Params[N,A], A: Field[A]): Dimension[N,A] => A =
+  def f15[N<:Nat:ToInt,A:Field:Trig:NRoot:Signed:Ordering]
+    (implicit P: F15Params[N,A]): Dimension[N,A] => A =
       P.params match {
         case (o, m, fbias) => {
-          val funcs =
-            Sized(
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _,
-              ackley[N,A] _,
-              ackley[N,A] _,
-              spherical[N,A] _,
-              spherical[N,A] _
-            )
+          val funcs = Sized(
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _,
+            ackley[N,A] _,
+            ackley[N,A] _,
+            spherical[N,A] _,
+            spherical[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(1.0, 1.0, 10.0, 10.0, 5.0/60.0, 5.0/60.0,
-                        5.0/32.0, 5.0/32.0, 5.0/100.0, 5.0/100.0).map(A.fromDouble)
-          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0).map(A.fromDouble)
-          val h = hybrid[N,A](o, m, funcs, λ, σ)
+                        5.0/32.0, 5.0/32.0, 5.0/100.0, 5.0/100.0)
+          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
           x => h(x) + fbias
         }
       }
@@ -327,27 +239,27 @@ object Benchmarks {
    * F16: Rotated Version of Hybrid Composition Function F15
    * x ∈ [−5,5]D
    */
-  def f16[N<:Nat:ToInt,A:NRoot:Signed:Ordering:Trig]
-    (implicit P: F16Params[N,A], A: Field[A]): Dimension[N,A] => A =
+  def f16[N<:Nat:ToInt,A:Field:NRoot:Signed:Ordering:Trig]
+    (implicit P: F16Params[N,A]): Dimension[N,A] => A =
       P.params match {
         case (o, m, fbias) => {
-          val funcs =
-            Sized(
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _,
-              ackley[N,A] _,
-              ackley[N,A] _,
-              spherical[N,A] _,
-              spherical[N,A] _
-            )
+          val funcs = Sized(
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _,
+            ackley[N,A] _,
+            ackley[N,A] _,
+            spherical[N,A] _,
+            spherical[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(1.0, 1.0, 10.0, 10.0, 5.0/60.0, 5.0/60.0,
-                        5.0/32.0, 5.0/32.0, 5.0/100.0, 5.0/100.0).map(A.fromDouble)
-          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        5.0/32.0, 5.0/32.0, 5.0/100.0, 5.0/100.0)
+          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -372,27 +284,27 @@ object Benchmarks {
    * F18: Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f18[N<:Nat:ToInt,A:NRoot:Signed:Ordering:Trig]
-    (implicit P: F18Params[N,A], A: Field[A]): Dimension[N,A] => A =
+  def f18[N<:Nat:ToInt,A:Field:NRoot:Signed:Ordering:Trig]
+    (implicit P: F18Params[N,A]): Dimension[N,A] => A =
       P.params match {
         case (o, m, fbias) => {
-          val funcs =
-            Sized(
-              ackley[N,A] _,
-              ackley[N,A] _,
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              spherical[N,A] _,
-              spherical[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _
-            )
+          val funcs = Sized(
+            ackley[N,A] _,
+            ackley[N,A] _,
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            spherical[N,A] _,
+            spherical[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(2 * 5.0/32.0, 5.0/32.0, 2.0 * 1.0, 1.0, 2 * 5.0/100.0,
-                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0).map(A.fromDouble)
-          val σ = Sized(1.0, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0)
+          val σ = Sized(1.0, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -402,27 +314,27 @@ object Benchmarks {
    * F19: Rotated Hybrid Composition Function with narrow basin global optimum
    * x ∈ [−5,5]D
    */
-  def f19[N<:Nat:ToInt,A:NRoot:Trig:Signed:Ordering]
-    (implicit P18: F18Params[N,A], P19: F19Params[A], A: Field[A]): Dimension[N,A] => A =
+  def f19[N<:Nat:ToInt,A:Field:NRoot:Trig:Signed:Ordering]
+    (implicit P18: F18Params[N,A], P19: F19Params[A]): Dimension[N,A] => A =
       (P18.params, P19.params) match {
         case ((o, m, _), fbias) =>
-          val funcs =
-            Sized(
-              ackley[N,A] _,
-              ackley[N,A] _,
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              spherical[N,A] _,
-              spherical[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _
-            )
+          val funcs = Sized(
+            ackley[N,A] _,
+            ackley[N,A] _,
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            spherical[N,A] _,
+            spherical[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(0.1 * 5.0/32.0, 5.0/32.0, 2.0 * 1.0, 1.0, 2.0 * 5.0/100.0,
-                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0).map(A.fromDouble)
-          val σ = Sized(0.1, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0)
+          val σ = Sized(0.1, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -431,27 +343,27 @@ object Benchmarks {
    * F20: Rotated Hybrid Composition Function with Global Optimum on the Bounds
    * x ∈ [−5,5]D
    */
-  def f20[N<:Nat:ToInt,A:NRoot:Ordering:Signed:Trig]
-    (implicit P18: F18Params[N,A], P20: F20Params[N,A], A: Field[A]): Dimension[N,A] => A =
+  def f20[N<:Nat:ToInt,A:Field:NRoot:Ordering:Signed:Trig]
+    (implicit P18: F18Params[N,A], P20: F20Params[N,A]): Dimension[N,A] => A =
       (P18.params, P20.params) match {
         case ((_, m, _), (o, fbias)) =>
-          val funcs =
-            Sized(
-              ackley[N,A] _,
-              ackley[N,A] _,
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              spherical[N,A] _,
-              spherical[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _
-            )
+          val funcs = Sized(
+            ackley[N,A] _,
+            ackley[N,A] _,
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            spherical[N,A] _,
+            spherical[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(2 * 5.0/32.0, 5.0/32.0, 2.0 * 1.0, 1.0, 2 * 5.0/100.0,
-                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0).map(A.fromDouble)
-          val σ = Sized(1.0, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        5.0/100.0, 2.0 * 10.0, 10.0, 2.0 * 5.0/60.0, 5.0/60.0)
+          val σ = Sized(1.0, 2.0, 1.5, 1.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -462,7 +374,7 @@ object Benchmarks {
         case (a, b) => schaffer6(Sized(a, b))
       }
 
-  private def f8f2[N<:Nat:GTEq2:HasHead,A:Field:NRoot:Trig]
+  def f8f2[N<:Nat:GTEq2:HasHead,A:Field:NRoot:Trig]
     (x: Dimension[N,A]): A =
       (x.toList :+ x.head).pairs mapSum {
         case (a, b) => {
@@ -474,27 +386,27 @@ object Benchmarks {
    * F21: Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f21[N<:Nat:ToInt:GTEq2:HasHead,A:Ordering:NRoot:Signed:Trig]
-    (implicit P: F21Params[N,A],A: Field[A]): Dimension[N,A] => A =
+  def f21[N<:Nat:ToInt:GTEq2:HasHead,A:Field:Ordering:NRoot:Signed:Trig]
+    (implicit P: F21Params[N,A]): Dimension[N,A] => A =
       P.params match {
         case (o, m, fbias) => {
-          val funcs =
-            Sized(
-              expandedShafferF6[N,A] _,
-              expandedShafferF6[N,A] _,
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              f8f2[N,A] _,
-              f8f2[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _
-            )
+          val funcs = Sized(
+            expandedShafferF6[N,A] _,
+            expandedShafferF6[N,A] _,
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            f8f2[N,A] _,
+            f8f2[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(5.0 * 5.0/100.0, 5.0/100.0, 5.0 * 1.0, 1.0, 5.0 * 1.0,
-                        1.0, 5.0 * 10.0, 10.0, 5.0 * 5.0/200.0, 5.0/200.0).map(A.fromDouble)
-          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        1.0, 5.0 * 10.0, 10.0, 5.0 * 5.0/200.0, 5.0/200.0)
+          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -504,27 +416,27 @@ object Benchmarks {
    * F22: Rotated Hybrid Composition Function with High Condition Number Matrix
    * x ∈ [−5,5]D
    */
-  def f22[N<:Nat:ToInt:GTEq2:HasHead,A:NRoot:Ordering:Signed:Trig]
-    (implicit P: F22Params[N,A], A: Field[A]): Dimension[N,A] => A =
+  def f22[N<:Nat:ToInt:GTEq2:HasHead,A:Field:NRoot:Ordering:Signed:Trig]
+    (implicit P: F22Params[N,A]): Dimension[N,A] => A =
       P.params match {
         case (o, m, fbias) => {
-          val funcs =
-            Sized(
-              expandedShafferF6[N,A] _,
-              expandedShafferF6[N,A] _,
-              rastrigin[N,A] _,
-              rastrigin[N,A] _,
-              f8f2[N,A] _,
-              f8f2[N,A] _,
-              weierstrass[N,A] _,
-              weierstrass[N,A] _,
-              griewank[N,A] _,
-              griewank[N,A] _
-            )
+          val funcs = Sized(
+            expandedShafferF6[N,A] _,
+            expandedShafferF6[N,A] _,
+            rastrigin[N,A] _,
+            rastrigin[N,A] _,
+            f8f2[N,A] _,
+            f8f2[N,A] _,
+            weierstrass[N,A] _,
+            weierstrass[N,A] _,
+            griewank[N,A] _,
+            griewank[N,A] _
+          )
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(5.0 * 5.0/100.0, 5.0/100.0, 5.0 * 1.0, 1.0, 5.0 * 1.0,
-                        1.0, 5.0 * 10.0, 10.0, 5.0 * 5.0/200.0, 5.0/200.0).map(A.fromDouble)
-          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0).map(A.fromDouble)
-          val h = hybrid(o, m, funcs, λ, σ)
+                        1.0, 5.0 * 10.0, 10.0, 5.0 * 5.0/200.0, 5.0/200.0)
+          val σ = Sized(1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0)
+          val h = Helper.hybrid[nat._10,N,A](b, o, m, funcs, λ, σ)
 
           x => h(x) + fbias
         }
@@ -550,13 +462,13 @@ object Benchmarks {
    * F24: Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f24[N<:Nat:ToInt:GTEq2:HasHead,A:IsReal:NRoot:Trig:Signed:Ordering]
-    (implicit P: F24Params[N,A], A: Field[A]): Dimension[N,A] => RVar[A] =
+  def f24[N<:Nat:ToInt:GTEq2:HasHead,A:Field:IsReal:NRoot:Trig:Signed:Ordering]
+    (implicit P: F24Params[N,A]): Dimension[N,A] => RVar[A] =
       P.params match {
         case (o, m, fbias, noise) =>
           def preRound(x: Dimension[N,A]) =
             x map { xj =>
-              if (abs(xj) < A.fromDouble(0.5)) xj
+              if (abs(xj) < implicitly[Field[A]].fromDouble(0.5)) xj
               else round(2.0 * xj) / 2.0
             }
           val funcsSeq: Vector[Dimension[N,A] => RVar[A]] =
@@ -573,10 +485,11 @@ object Benchmarks {
               x => noise.map { n => spherical(x) * (1.0 + 0.1 * n) }
             )
           val funcs: Dimension10[Dimension[N,A] => RVar[A]] = Sized.wrap(funcsSeq)
+          val b = Sized(0.0, 100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0)
           val λ = Sized(10.0, 5.0/20.0, 1.0, 5.0/32.0, 1.0, 5.0/100.0,
-                        5.0/50.0, 1.0, 5.0/100.0, 5.0/100.0).map(A.fromDouble)
-          val σ = Sized(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0).map(A.fromDouble)
-          val h = hybridR(o, m, funcs, λ, σ)
+                        5.0/50.0, 1.0, 5.0/100.0, 5.0/100.0)
+          val σ = Sized(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0)
+          val h = Helper.hybridR[nat._10,N,A](b, o, m, funcs, λ, σ)
           x => h(x) map { _ + fbias }
         }
 

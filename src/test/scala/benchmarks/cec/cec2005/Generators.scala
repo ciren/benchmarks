@@ -1,4 +1,5 @@
 package benchmarks
+package cec
 package cec2005
 
 import org.scalacheck._

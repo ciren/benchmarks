@@ -372,8 +372,8 @@ object Benchmarks {
           1000.0 ** (2 * (j / (peaks - 2.0)))
         }
         val C = for {
-          shuffled <- RVar shuffle options.toList
-          a         = 1000.0 +: shuffled
+          shuffled <- RVar shuffle options.toList.toNel.get
+          a         = 1000.0 +: shuffled.toList
         } yield a map { ai =>
           val exponent = implicitly[Field[A]] fromDouble (ai ** 0.25)
           Matrix.alpha[N,A](ai) / exponent
