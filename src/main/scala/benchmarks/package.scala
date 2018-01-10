@@ -9,6 +9,7 @@ package object benchmarks {
     with ListSyntax
     with DimensionSyntax
     with MatrixSyntax
+    with EvalSyntax
     with cec.cec2005.Params
     with cec.cec2013.niching.Params
 

@@ -75,6 +75,21 @@ f1(x)
 // res1: Double = 4412.64790162
 ```
 
+### CILib compatibility
+```scala
+import shapeless._
+import spire.implicits._
+import cilib._
+
+import benchmarks.Benchmarks
+import benchmarks.implicits._
+
+val f = Benchmarks.spherical[nat._2,Double] _
+
+// convert function to Eval for use in cilib
+val eval = f.unconstrained
+```
+
 ## Functions
 
 Name | Dimension
