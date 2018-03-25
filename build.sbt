@@ -4,10 +4,10 @@ import sbtrelease._
 import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 
-val scalazVersion     = "7.2.7"
-val scalacheckVersion = "1.12.6"
+val scalazVersion     = "7.2.20"
+val scalacheckVersion = "1.12.6" // remain on 1.12.x because scalaz-binding is built against this version
 val spireVersion      = "0.13.0"
-val shapelessVersion  = "2.3.2"
+val shapelessVersion  = "2.3.3"
 
 organization := "net.cilib"
 
@@ -16,7 +16,7 @@ name := "benchmarks"
 scmInfo := Some(ScmInfo(url("https://github.com/cirg-up/benchmarks"),
     "git@github.com:cirg-up/benchmarks.git"))
 
-licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
+licenses := Seq("MIT" -> url("http://opensource.org/licenses/Apache-2.0"))
 
 homepage := Some(url("http://cirg-up.github.io/cilib"))
 
@@ -47,7 +47,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalaz"     %% "scalaz-core"    % scalazVersion,
   "org.spire-math" %% "spire"          % spireVersion,
-  "net.cilib"      %% "cilib-core"     % "2.0.0-SNAPSHOT",
+  "net.cilib"      %% "cilib-core"     % "2.0.1",
   "com.chuusai"    %% "shapeless"      % shapelessVersion,
   "org.scalacheck" %% "scalacheck"     % scalacheckVersion % "test",
   "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test"
