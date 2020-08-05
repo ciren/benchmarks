@@ -3,7 +3,7 @@ package syntax
 
 import scala.language.implicitConversions
 
-import spire.algebra.{Ring}
+import spire.algebra.{ Ring }
 import spire.implicits._
 
 final class RangeOps(x: Range) {

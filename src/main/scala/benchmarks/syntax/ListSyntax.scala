@@ -3,7 +3,7 @@ package syntax
 
 import scala.language.implicitConversions
 
-import spire.algebra.{Field,Ring}
+import spire.algebra.{ Field, Ring }
 import spire.implicits._
 
 final class ListOps[A](x: List[A]) {

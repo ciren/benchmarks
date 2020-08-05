@@ -1,28 +1,39 @@
 import sbt._
 import Keys._
-import sbtrelease._
-import sbtrelease.ReleasePlugin._
-import sbtrelease.ReleaseStateTransformations._
+import _root_.scalafix.sbt.ScalafixPlugin.autoImport.scalafixSemanticdb
 
 val scalazVersion     = "7.2.20"
 val scalacheckVersion = "1.12.6" // remain on 1.12.x because scalaz-binding is built against this version
 val spireVersion      = "0.13.0"
 val shapelessVersion  = "2.3.3"
 
-organization := "net.cilib"
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+inThisBuild(
+  List(
+    organization := "net.cilib",
+    homepage := Some(url("https://cilib,net")),
+    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "gpampara",
+        "Gary Pamparà",
+        "",
+        url("http://gpampara.github.io")
+      )
+    ),
+    scmInfo := Some(
+      ScmInfo(url("https://github.com/ciren/benchmarks/"), "scm:git:git@github.com:ciren/benckmarks.git")
+    )
+  )
+)
 
 name := "benchmarks"
 
-scmInfo := Some(ScmInfo(url("https://github.com/cirg-up/benchmarks"),
-    "git@github.com:cirg-up/benchmarks.git"))
-
-licenses := Seq("MIT" -> url("http://opensource.org/licenses/Apache-2.0"))
-
-homepage := Some(url("http://cirg-up.github.io/cilib"))
-
 scalacOptions ++= Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -41,64 +52,41 @@ scalacOptions ++= Seq(
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "bintray/non" at "http://dl.bintray.com/non/maven"
+  "bintray/non" at "https://dl.bintray.com/non/maven"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core"    % scalazVersion,
-  "org.spire-math" %% "spire"          % spireVersion,
-  "net.cilib"      %% "cilib-core"     % "2.0.1",
-  "com.chuusai"    %% "shapeless"      % shapelessVersion,
-  "org.scalacheck" %% "scalacheck"     % scalacheckVersion % "test",
-  "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test"
+  "org.scalaz"     %% "scalaz-core"               % scalazVersion,
+  "org.spire-math" %% "spire"                     % spireVersion,
+  "net.cilib"      %% "cilib-core"                % "2.0.1",
+  "com.chuusai"    %% "shapeless"                 % shapelessVersion,
+  "org.scalacheck" %% "scalacheck"                % scalacheckVersion % "test",
+  "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test",
+  compilerPlugin(scalafixSemanticdb)
 )
 
 publishMavenStyle := true
-
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
 
 publishArtifact in Test := false
 
 pomExtra := (
   <developers>
     {
-      Seq(
-        ("robgarden", "Robert Garden"),
-        ("gpampara", "Gary Pamparà"),
-        ("filinep", "Filipe Nepomuceno"),
-        ("benniel", "Bennie Leonard")
-      ).map {
-        case (id, name) =>
-          <developer>
+    Seq(
+      ("robgarden", "Robert Garden"),
+      ("gpampara", "Gary Pamparà"),
+      ("filinep", "Filipe Nepomuceno"),
+      ("benniel", "Bennie Leonard")
+    ).map {
+      case (id, name) =>
+        <developer>
             <id>{id}</id>
             <name>{name}</name>
             <url>http://github.com/{id}</url>
           </developer>
-      }
     }
+  }
   </developers>
 )
 
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  //publishSignedArtifacts,
-  setNextVersion,
-  commitNextVersion
-  //pushChanges
-)
-
-credentials ++= (for {
-    username <- Option(System.getenv("SONATYPE_USERNAME"))
-    password <- Option(System.getenv("SONATYPE_PASSWORD"))
-  } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)).toSeq
+scalafixDependencies in ThisBuild += "com.nequissimus" %% "sort-imports" % "0.5.0"
