@@ -18,3 +18,8 @@ project/plugins/project/
 
 # OS X
 .DS_Store
+
+
+.direnv/
+.bsp/
+.metals/
