@@ -1,10 +1,11 @@
 import sbt._
 import Keys._
 
-val scalazVersion     = "7.3.2"
-val scalacheckVersion = "1.14.3" // remain on 1.12.x because scalaz-binding is built against this version
 val spireVersion      = "0.17.0-RC1"
-val shapelessVersion  = "2.3.3"
+
+val zioPrelude = "dev.zio" %% "zio-prelude"  % "1.0.0-RC5"
+val spire = "org.typelevel" %% "spire" % spireVersion
+val cilibCore = "net.cilib" %% "cilib-core" % "2.0.1"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -53,17 +54,12 @@ scalacOptions ++= Seq(
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
-  //"bintray/non" at "https://dl.bintray.com/non/maven"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core"               % scalazVersion,
-  "org.typelevel" %% "spire"                     % spireVersion,
-  "net.cilib"      %% "cilib-core"                % "2.0.1",
-  "com.chuusai"    %% "shapeless"                 % shapelessVersion,
-  "org.scalacheck" %% "scalacheck"                % scalacheckVersion % "test",
-  "org.scalaz"     %% "scalaz-scalacheck-binding" % scalazVersion % "test"
-//  compilerPlugin(scalafixSemanticdb)
+  zioPrelude,
+  spire,
+  cilibCore
 )
 
 publishMavenStyle := true
