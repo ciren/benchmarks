@@ -3,26 +3,15 @@ package benchmarks
 import zio.prelude._
 import zio.test._
 
-// import shapeless._
-
-// import org.scalacheck._
-// import org.scalacheck.Prop._
-
 import spire.implicits._
-import spire.math._
-
-// import Benchmarks._
-// import implicits._
-// import dimension.Generators._
+//import spire.math._
 
 import Benchmarks._
 import Generators._
 
 object BenchmarkTests extends DefaultRunnableSpec {
+  val zero3 = NonEmptyList(0.0, 0.0, 0.0)
 
-  def spec: ZSpec[Environment, Failure] = suite("Benchmarks")(
-// object BenchmarksTest extends Properties("Benchmarks") {
-//   val zero3 = Sized(0.0, 0.0, 0.0)
 
 //   val epsilon = 1e-15
 //   def epsilonF(precision: Double) = 1.0 / (10.0 ** precision)
@@ -32,24 +21,21 @@ object BenchmarkTests extends DefaultRunnableSpec {
 //     def ~(v: Double) = abs(v - d) <= epsilon
 //   }
 
+  def spec: ZSpec[Environment, Failure] = suite("Benchmarks")(
+
     testM("absoluteValue") {
       check(nelGen(10)) { case xs =>
         val abs = absoluteValue(xs)
 
-        //assert(abs)(Assertion.isEqualTo(absoluteValue(xs.map(_ * -1)))) &&
+        assert(abs)(Assertion.equalTo(absoluteValue(xs.map(_ * -1)))) &&
         assert(abs)(Assertion.isGreaterThanEqualTo(0.0)) &&
         assert(abs)(Assertion.isGreaterThanEqualTo(mapSum(xs)(xi => xi)))
       }
-      //= forAll(genSized(-100.0, 100.0)) { g =>
-//     val abs = absoluteValue(g)
-//     abs === absoluteValue(g.map(_ * -1)) &&
-//     abs >= 0.0 &&
-//     abs >= g.mapSum(xi => xi)
-//   } && {
-//     absoluteValue(zero3) === 0.0 &&
-//     absoluteValue(Sized(1.0, 2.0, 3.0)) === 6.0 &&
-//     absoluteValue(Sized(-1.0, -2.0, -3.0)) === 6.0
-//   }
+    },
+    test("absoluteValue units") {
+      assert(absoluteValue(zero3))(Assertion.equalTo(0.0)) &&
+      assert(absoluteValue(NonEmptyList(1.0, 2.0, 3.0)))(Assertion.equalTo(6.0)) &&
+      assert(absoluteValue(NonEmptyList(-1.0, -2.0, -3.0)))(Assertion.equalTo(6.0))
     }
 
 //   property("ackley") = forAll(genSized(-32.768, 32.768)) { g =>
