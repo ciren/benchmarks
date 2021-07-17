@@ -1099,34 +1099,34 @@ object Benchmarks {
       val v = (sin(5 * pi * xi) ** 6)
       -exp(u) * v
     }
-/*
-  def rotatedEllipse1[N <: Nat: GTEq2, A: Field](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+
+  def rotatedEllipse1[A: Field](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (x1, x2) =>
         (7 * (x1 ** 2)) - (6 * sqrt(3.0) * x1 * x2) + (13 * (x2 ** 2))
     }
 
-  def rotatedEllipse2[N <: Nat: GTEq2, A: Ring](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+  def rotatedEllipse2[A: Ring](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (x1, x2) => (x1 ** 2) - (x1 * x2) + (x2 ** 2)
     }
 
-  def salomon[N <: Nat, A: Field: NRoot: Trig](x: Dimension[N, A]) = {
+  def salomon[A: Field: NRoot: Trig](x: NonEmptyList[A]) = {
     val ss = sqrt(spherical(x))
     -cos(2 * pi * ss) + (0.1 * ss) + 1
   }
 
-  def sargan[N <: Nat, A: Field](x: Dimension[N, A]) = {
+  def sargan[A: Field](x: NonEmptyList[A]) = {
     val zipped = x.zipWithIndex
-    zipped.mapSum {
+    mapSum(zipped) {
       case (xi, i) =>
-        val sum = zipped.toList.filter { case (_, j) => i != j }.mapSum { case (xj, _) => xi * xj }
+        val sum = mapSum(zipped.filter { case (_, j) => i != j }) { case (xj, _) => xi * xj }
         x.size * ((xi ** 2) + 0.4 * sum)
     }
   }
 
-  def schaffer1[N <: Nat: GTEq2, A: Field: Trig](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+  def schaffer1[A: Field: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = (xi ** 2) + (xi1 ** 2)
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1135,8 +1135,8 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer2[N <: Nat: GTEq2, A: Field: Trig](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+  def schaffer2[A: Field: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = (xi ** 2) - (xi1 ** 2)
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1145,8 +1145,8 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer3[N <: Nat: GTEq2, A: Field: Signed: Trig](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+  def schaffer3[A: Field: Signed: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = cos(abs((xi ** 2) - (xi1 ** 2)))
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1155,8 +1155,8 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer4[N <: Nat: GTEq2, A: Field: Trig](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+  def schaffer4[A: Field: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = sin((xi ** 2) - (xi1 ** 2))
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1165,8 +1165,8 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer6[N <: Nat: GTEq2, A: Field: NRoot: Trig](x: Dimension[N, A]) =
-    x.toList.pairs.mapSum {
+  def schaffer6[A: Field: NRoot: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = (xi ** 2) + (xi1 ** 2)
         val t2 = (xi ** 2) + (xi1 ** 2)
@@ -1175,138 +1175,139 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schumerSteiglitz[N <: Nat, A: Field](x: Dimension[N, A]) =
-    x.mapSum(_ ** 4)
+  def schumerSteiglitz[A: Field](x: NonEmptyList[A]) =
+    mapSum(x)(_ ** 4)
 
-  def schwefel1[N <: Nat, A: Field: NRoot](x: Dimension[N, A]) = {
-    val α = sqrt(pi)
-    x.mapSum(_ ** 2) ** α
-  }
+  def schwefel1[A: Field: NRoot](x: NonEmptyList[A]) =
+    mapSum(x)(_ ** 2) ** sqrt(pi)
 
-  def schwefel12[N <: Nat, A: Ring](x: Dimension[N, A]) =
-    x.zipWithIndex.mapSum {
-      case (xi, i) => x.toList.take(i + 1).mapSum(xi => xi) ** 2
+  def schwefel12[A: Ring](x: NonEmptyList[A]) =
+    mapSum(x.zipWithIndex) {
+      case (xi, i) => mapSum(x.take(i + 1))(xi => xi) ** 2
     }
 
-  def schwefel220[N <: Nat, A: Ring: Signed](x: Dimension[N, A]) =
-    x.mapSum(abs(_))
+  def schwefel220[A: Ring: Signed](x: NonEmptyList[A]) =
+    mapSum(x)(abs(_))
 
-  def schwefel221[N <: Nat: HasHead, A: Order: Signed](x: Dimension[N, A]) =
-    x.toList.fold(abs(x.head)) { (xi, xi1) =>
+  def schwefel221[A: Order: Signed](x: NonEmptyList[A]) =
+    x.fold(abs(x.head)) { (xi, xi1) =>
       spire.math.max(abs(xi), abs(xi1))
     }
 
-  def schwefel222[N <: Nat, A: Field: Signed](x: Dimension[N, A]) =
-    x.mapSum(abs(_)) + x.mapProduct(abs(_))
+  def schwefel222[A: Field: Signed](x: NonEmptyList[A]) =
+    mapSum(x)(abs(_)) + mapProduct(x)(abs(_))
 
-  def schwefel223[N <: Nat, A: Ring](x: Dimension[N, A]) =
-    x.mapSum(_ ** 10)
+  def schwefel223[A: Ring](x: NonEmptyList[A]) =
+    mapSum(x)(_ ** 10)
 
-  def schwefel225[N <: Nat: HasHead, A: Field](x: Dimension[N, A]) =
-    x.mapSum(xi => ((xi - 1) ** 2) + ((x.head - (xi ** 2)) ** 2))
+  def schwefel225[A: Field](x: NonEmptyList[A]) =
+    mapSum(x)(xi => ((xi - 1) ** 2) + ((x.head - (xi ** 2)) ** 2))
 
-  def schwefel226[N <: Nat, A: Field: NRoot: Signed: Trig](x: Dimension[N, A]) =
-    418.9829 * x.size - x.mapSum(xi => xi * sin(sqrt(abs(xi))))
+  def schwefel226[A: Field: NRoot: Signed: Trig](x: NonEmptyList[A]) =
+    418.9829 * x.size - mapSum(x)(xi => xi * sin(sqrt(abs(xi))))
 
-  def schwefel236[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def schwefel236[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     -x1 * x2 * (72 - 2 * x1 - 2 * x2)
   }
 
-  def schwefel24[N <: Nat: HasHead, A: Field](x: Dimension[N, A]) =
-    x.mapSum(xi => ((x.head - 1) ** 2) + ((x.head - xi) ** 2))
+  def schwefel24[A: Field](x: NonEmptyList[A]) =
+    mapSum(x)(xi => ((x.head - 1) ** 2) + ((x.head - xi) ** 2))
 
-  def schwefel26[A: Order: Ring: Signed](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def schwefel26[A: Order: Ring: Signed](x: (A, A)) = {
+    val (x1, x2) = x
     spire.math.max(abs(x1 + 2 * x2 - 7), abs(2 * x1 + x2 - 5))
   }
 
-  def shekel5[A: Field](x: Dimension4[A]) = {
-    val a = Sized(
-      Sized(4, 4, 4, 4),
-      Sized(1, 1, 1, 1),
-      Sized(8, 8, 8, 8),
-      Sized(6, 6, 6, 6),
-      Sized(3, 7, 3, 7)
+  def shekel5[A: Field](x: (A, A, A, A)) = {
+    val list = List(x._1, x._2, x._3, x._4)
+    val a = List(
+      List(4, 4, 4, 4),
+      List(1, 1, 1, 1),
+      List(8, 8, 8, 8),
+      List(6, 6, 6, 6),
+      List(3, 7, 3, 7)
     )
-    val c = Sized(0.1, 0.2, 0.2, 0.4, 0.6)
+    val c = List(0.1, 0.2, 0.2, 0.4, 0.6)
 
-    -(a zip c).mapSum {
+    -mapSum(a zip c) {
       case (ai, ci) =>
-        1 / (ci + (x zip ai).mapSum { case (xj, aij) => (xj - aij) ** 2 })
+        1 / (ci + mapSum(list zip ai) { case (xj, aij) => (xj - aij) ** 2 })
     }
   }
 
-  def shekel7[A: Field](x: Dimension4[A]) = {
-    val a = Sized(
-      Sized(4, 4, 4, 4),
-      Sized(1, 1, 1, 1),
-      Sized(8, 8, 8, 8),
-      Sized(6, 6, 6, 6),
-      Sized(3, 7, 3, 7),
-      Sized(2, 9, 2, 9),
-      Sized(5, 5, 3, 3)
+  def shekel7[A: Field](x: (A, A, A, A)) = {
+    val list = List(x._1, x._2, x._3, x._4)
+    val a = List(
+      List(4, 4, 4, 4),
+      List(1, 1, 1, 1),
+      List(8, 8, 8, 8),
+      List(6, 6, 6, 6),
+      List(3, 7, 3, 7),
+      List(2, 9, 2, 9),
+      List(5, 5, 3, 3)
     )
-    val c = Sized(0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3)
+    val c = List(0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3)
 
-    -(a zip c).mapSum {
+    -mapSum(a zip c) {
       case (ai, ci) =>
-        1.0 / (ci + (x zip ai).mapSum { case (xj, aij) => (xj - aij) ** 2 })
+        1.0 / (ci + mapSum(list zip ai) { case (xj, aij) => (xj - aij) ** 2 })
     }
   }
 
-  def shekel10[A: Field](x: Dimension4[A]) = {
-    val a = Sized(
-      Sized(4.0, 4.0, 4.0, 4.0),
-      Sized(1.0, 1.0, 1.0, 1.0),
-      Sized(8.0, 8.0, 8.0, 8.0),
-      Sized(6.0, 6.0, 6.0, 6.0),
-      Sized(3.0, 7.0, 3.0, 7.0),
-      Sized(2.0, 9.0, 2.0, 9.0),
-      Sized(5.0, 5.0, 3.0, 3.0),
-      Sized(8.0, 1.0, 8.0, 1.0),
-      Sized(6.0, 2.0, 6.0, 2.0),
-      Sized(7.0, 3.6, 7.0, 3.6)
+  def shekel10[A: Field](x: (A, A, A, A)) = {
+    val list = List(x._1, x._2, x._3, x._4)
+    val a = List(
+      List(4.0, 4.0, 4.0, 4.0),
+      List(1.0, 1.0, 1.0, 1.0),
+      List(8.0, 8.0, 8.0, 8.0),
+      List(6.0, 6.0, 6.0, 6.0),
+      List(3.0, 7.0, 3.0, 7.0),
+      List(2.0, 9.0, 2.0, 9.0),
+      List(5.0, 5.0, 3.0, 3.0),
+      List(8.0, 1.0, 8.0, 1.0),
+      List(6.0, 2.0, 6.0, 2.0),
+      List(7.0, 3.6, 7.0, 3.6)
     )
-    val c = Sized(0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5)
+    val c = List(0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5)
 
-    -(a zip c).mapSum {
+    -mapSum(a zip c) {
       case (ai, ci) =>
-        1.0 / (ci + (x zip ai).mapSum { case (xj, aij) => (xj - aij) ** 2 })
+        1.0 / (ci + mapSum(list zip ai) { case (xj, aij) => (xj - aij) ** 2 })
     }
   }
 
-  def shubert[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    -x.mapProduct { xi =>
-      (1 to 5).mapSum(j => j * cos((j + 1) * xi + j))
+  def shubert[A: Field: Trig](x: NonEmptyList[A]) =
+    -mapProduct(x) { xi =>
+      mapSum(1 to 5)(j => j * cos((j + 1) * xi + j))
     }
 
-  def shubert1[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
-    val t1       = (1 to 5).mapSum(j => j * cos((j + 1) * x1 + j))
-    val t2       = (1 to 5).mapSum(j => j * cos((j + 1) * x2 + j))
+  def shubert1[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
+    val t1       = mapSum(1 to 5)(j => j * cos((j + 1) * x1 + j))
+    val t2       = mapSum(1 to 5)(j => j * cos((j + 1) * x2 + j))
     t1 * t2
   }
 
-  def shubert3[A: Ring: Trig](x: Dimension2[A]) =
-    x.mapSum(xi => (1 to 5).mapSum(j => -j * sin((j + 1) * xi + j)))
+  def shubert3[A: Ring: Trig](x: (A, A)) =
+    mapSum(List(x._1, x._2))(xi => mapSum(1 to 5)(j => -j * sin((j + 1) * xi + j)))
 
-  def shubert4[A: Ring: Trig](x: Dimension2[A]) =
-    x.mapSum(xi => (1 to 5).mapSum(j => -j * cos((j + 1) * xi + j)))
+  def shubert4[A: Ring: Trig](x: (A, A)) =
+    mapSum(List(x._1, x._2))(xi => mapSum(1 to 5)(j => -j * cos((j + 1) * xi + j)))
 
-  def sineEnvelope[A: Field: NRoot: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def sineEnvelope[A: Field: NRoot: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     val numer    = (sin(sqrt((x1 ** 2) + (x2 ** 2))) ** 2) - 0.5
     val denom    = 1 + 0.0001 * (((x1 ** 2) + (x2 ** 2)) ** 2)
     0.5 + (numer / denom)
   }
 
-  def sixHumpCamelback[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def sixHumpCamelback[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     val tX1      = 4 * (x1 ** 2) - 2.1 * (x1 ** 4) + ((x1 ** 6) / 3.0)
     val tX2      = x1 * x2 - 4 * (x2 ** 2) + 4 * (x2 ** 4)
     tX1 + tX2
-  }*/
+  }
 
   def spherical[A: Ring](x: NonEmptyList[A]) =
     mapSum(x)(_ ** 2)
@@ -1319,36 +1320,36 @@ object Benchmarks {
 
   def step3[A: IsReal: Ring](x: NonEmptyList[A]) =
     mapSum(x)(xi => floor(xi ** 2))
-/*
-  def stretchedVSineWave[N <: Nat: GTEq2, A: Field: NRoot: Trig](x: Dimension[N, A]) =
-    x.pairs.mapSum {
+
+  def stretchedVSineWave[A: Field: NRoot: Trig](x: AtLeast2List[A]) =
+    mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = ((xi1 ** 2) + (xi ** 2)) ** 0.25
         val t2 = sin(50 * (((xi1 ** 2) + (xi ** 2) ** 0.1))) ** 2 + 0.1
         t1 * t2
     }
 
-  def styblinksiTang[N <: Nat, A: Field](x: Dimension[N, A]) =
-    0.5 * x.mapSum(xi => (xi ** 4) - 16 * (xi ** 2) + 5 * xi)
+  def styblinksiTang[A: Field](x: NonEmptyList[A]) =
+    0.5 * mapSum(x)(xi => (xi ** 4) - 16 * (xi ** 2) + 5 * xi)
 
-  def sumSquares[N <: Nat, A: Ring](x: Dimension[N, A]) =
-    x.zipWithIndex.mapSum { case (xi, i) => (i + 1) * (xi ** 2) }
+  def sumSquares[A: Ring](x: NonEmptyList[A]) =
+    mapSum(x.zipWithIndex) { case (xi, i) => (i + 1) * (xi ** 2) }
 
-  def sumDifferentPowers[N <: Nat, A: Ring: Signed](x: Dimension[N, A]) =
-    x.zipWithIndex.mapSum { case (xi, i) => abs(xi) ** (i + 2) }
+  def sumDifferentPowers[A: Ring: Signed](x: NonEmptyList[A]) =
+    mapSum(x.zipWithIndex) { case (xi, i) => abs(xi) ** (i + 2) }
 
-  def threeHumpCamelback[A: Field: IsReal](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def threeHumpCamelback[A: Field: IsReal](x: (A, A)) = {
+    val (x1, x2) = x
     2 * (x1 ** 2) - 1.05 * (x1 ** 4) + ((x1 ** 6) / 6) + x1 * x2 + x2 ** 2
   }
 
-  def trecanni[A: Ring](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def trecanni[A: Ring](x: (A, A)) = {
+    val (x1, x2) = x
     x1 ** 4 + 4 * (x1 ** 3) + 4 * (x1 ** 2) + (x2 ** 2)
   }
 
-  def trefethen[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def trefethen[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = 0.25 * (x1 ** 2) + 0.25 * (x2 ** 2)
     val t2       = exp(sin(50 * x1)) - sin(10 * (x1 + x2))
     val t3       = sin(60 * exp(x2))
@@ -1357,28 +1358,28 @@ object Benchmarks {
     t1 + t2 + t3 + t4 + t5
   }
 
-  def trid[N <: Nat: GTEq2, A: Field](x: Dimension[N, A]) = {
-    val t1 = x.mapSum(xi => (xi - 1) ** 2)
-    val t2 = x.pairs.mapSum { case (xi, xi1) => xi * xi1 }
+  def trid[A: Field](x: AtLeast2List[A]) = {
+    val t1 = mapSum(AtLeast2List.unwrap(x))(xi => (xi - 1) ** 2)
+    val t2 = mapSum(pairs(AtLeast2List.unwrap(x))) { case (xi, xi1) => xi * xi1 }
     t1 - t2
   }
 
-  def trigonometric1[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    x.zipWithIndex.mapSum {
+  def trigonometric1[A: Field: Trig](x: NonEmptyList[A]) =
+    mapSum(x.zipWithIndex) {
       case (xi, i) =>
-        (x.size - x.mapSum(cos(_)) + i * (1.0 - cos(xi) - sin(xi))) ** 2
+        (x.size - mapSum(x)(cos(_)) + i * (1.0 - cos(xi) - sin(xi))) ** 2
     }
 
-  def trigonometric2[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    1.0 + x.mapSum { xi =>
+  def trigonometric2[A: Field: Trig](x: NonEmptyList[A]) =
+    1.0 + mapSum(x) { xi =>
       val co = (xi - 0.9) ** 2
       val t1 = 8 * (sin(7 * co) ** 2)
       val t2 = 6 * (sin(14 * co) ** 2)
       t1 + t2 + co
     }
 
-  def tripod[A: Order: Signed](x: Dimension2[A])(implicit A: Field[A]) = {
-    val (x1, x2) = x.tuple
+  def tripod[A: Order: Signed](x: (A, A))(implicit A: Field[A]) = {
+    val (x1, x2) = x
     def p(xi: A) = if (xi >= A.zero) A.one else A.zero
 
     val t1 = p(x2) * (1 + p(x2))
@@ -1387,20 +1388,19 @@ object Benchmarks {
     t1 + t2 + t3
   }
 
-  def unevenDecreasingMaxima[A: Field: NRoot: Trig](x: Dimension1[A]) = {
-    val xi = x.head
-    val t1 = exp(-2 * log(2) * (((xi - 0.08) / 0.854) ** 2))
-    val t2 = sin(5 * pi * (xi.**(3.0 / 4.0) - 0.05)) ** 6
+  def unevenDecreasingMaxima[A: Field: NRoot: Trig](x: A) = {
+    val t1 = exp(-2 * log(2) * (((x - 0.08) / 0.854) ** 2))
+    val t2 = sin(5 * pi * (x.**(3.0 / 4.0) - 0.05)) ** 6
     t1 * t2
   }
 
-  def ursem1[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def ursem1[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     -sin(2 * x1 - 0.5 * pi) - 3 * cos(x2) - 0.5 * x1
   }
 
-  def ursem3[A: Field: Trig: Signed](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def ursem3[A: Field: Trig: Signed](x: (A, A)) = {
+    val (x1, x2) = x
     val co1      = -sin(2.2 * pi * x1 + 0.5 * pi)
     val co2      = -sin(2.2 * pi * x2 + 0.5 * pi)
     val t1       = co1 * ((2 - abs(x1)) / (2)) * ((3 - abs(x1)) / (2))
@@ -1408,15 +1408,15 @@ object Benchmarks {
     t1 + t2
   }
 
-  def ursem4[A: Field: NRoot: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def ursem4[A: Field: NRoot: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = -3 * sin(0.5 * pi * x1 + 0.5 * pi)
     val t2       = (2 - sqrt((x1 ** 2) + (x2 ** 2))) / 4
     t1 * t2
   }
 
-  def ursemWaves[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def ursemWaves[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = -0.9 * (x1 ** 2)
     val t2       = ((x2 ** 2) - 4.5 * (x2 ** 2)) * x1 * x2
     val t3       = 4.7 * cos(3 * x1 - (x2 ** 2) * (2 + x1))
@@ -1424,27 +1424,28 @@ object Benchmarks {
     t1 + t2 + t3 * t4
   }
 
-  def venterSobiezcczanskiSobieski[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def venterSobiezcczanskiSobieski[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = (x1 ** 2) - 100 * (cos(x1) ** 2)
     val t2       = -100 * cos((x1 ** 2) / 30) + (x2 ** 2)
     val t3       = -100 * (cos(x2) ** 2) - 100 * cos((x2 ** 2) / 30)
     t1 + t2 + t3
   }
 
-  def vincent[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    -x.mapSum(xi => sin(10 * log(xi)))
+  def vincent[A: Field: Trig](x: NonEmptyList[A]) =
+    -mapSum(x)(xi => sin(10 * log(xi)))
 
-  def watson[A: Field](x: Dimension6[A]) = {
-    val x1 = x.head
+  def watson[A: Field](x: (A, A, A, A, A, A)) = {
+    val list = NonEmptyList(x._1, x._2, x._3, x._4, x._5, x._6)
+    val x1 = x._1
 
-    val t1 = (0 to 29).mapSum { i =>
+    val t1 = mapSum(0 to 29) { i =>
       val ai = i / 29.0
-      val sum4 = x.toList.tail.zipWithIndex.mapSum {
+      val sum4 = mapSum(list.tail.zipWithIndex) {
         case (xj, j) =>
           (j + 1) * (ai ** j.toDouble) * xj
       }
-      val sum5 = x.zipWithIndex.mapSum {
+      val sum5 = mapSum(list.zipWithIndex) {
         case (xk, k) =>
           (ai ** k.toDouble) * xk
       }
@@ -1453,33 +1454,33 @@ object Benchmarks {
     t1 + (x1 ** 2)
   }
 
-  def wayburnSeader1[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def wayburnSeader1[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = ((x1 ** 6) + (x2 ** 4) - 17) ** 2
     val t2       = (2 * x1 + x2 - 4) ** 2
     t1 + t2
   }
 
-  def wavy[N <: Nat, A: Field: Trig](k: A = 10.0)(x: Dimension[N, A]) =
-    1 - (x.mapSum { xi =>
+  def wavy[A: Field: Trig](k: A = 10.0)(x: NonEmptyList[A]) =
+    1 - (mapSum(x) { xi =>
       cos(k * xi) * exp(-(xi ** 2) / 2)
     } / x.size)
 
-  def wayburnSeader2[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def wayburnSeader2[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = (1.613 - 4 * ((x1 - 0.3125) ** 2) - 4 * ((x2 - 1.625) ** 2)) ** 2
     val t2       = (x2 - 1) ** 2
     t1 + t2
   }
 
-  def wayburnSeader3[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def wayburnSeader3[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     val t1       = 2 * ((x1 ** 3) / 3) - 8 * (x1 ** 2) + 33 * x1 - x1 * x2 + 5
     val t2       = (((x1 - 4) ** 2) + ((x2 - 5.0) ** 2) - 4) ** 2
     t1 + t2
   }
 
-  def weierstrass[N <: Nat, A: Field: Trig](x: Dimension[N, A]) = {
+  def weierstrass[A: Field: Trig](x: NonEmptyList[A]) = {
     val a    = 0.5
     val b    = 3.0
     val kmax = 20
@@ -1489,8 +1490,8 @@ object Benchmarks {
       t1 * t2
     }.sum
 
-    val factor1 = x.mapSum { xi =>
-      (0 to kmax).mapSum { k =>
+    val factor1 = mapSum(x) { xi =>
+      mapSum(0 to kmax) { k =>
         val t1 = a ** k.toDouble
         val t2 = cos(2 * pi * (b ** k.toDouble) * (xi + 0.5))
         t1 * t2
@@ -1500,9 +1501,9 @@ object Benchmarks {
     factor1 - x.size * constant
   }
 
-  def whitley[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    x.mapSum { xi =>
-      x.mapSum { xj =>
+  def whitley[A: Field: Trig](x: NonEmptyList[A]) =
+    mapSum(x) { xi =>
+      mapSum(x) { xj =>
         val factor = 100 * (((xi ** 2) - xj) ** 2) + ((1 - xj) ** 2)
         val t1     = (factor ** 2) / 4000
         val t2     = cos(factor)
@@ -1510,13 +1511,13 @@ object Benchmarks {
       }
     }
 
-  def wolfe[A: Field: NRoot](x: Dimension3[A]) = {
-    val (x1, x2, x3) = x.tuple
+  def wolfe[A: Field: NRoot](x: (A, A, A)) = {
+    val (x1, x2, x3) = x
     (4.0 / 3.0) * (((x1 ** 2) + (x2 ** 2)) ** 0.75) + x3
   }
 
-  def wood[A: Field](x: Dimension4[A]) = {
-    val (x1, x2, x3, x4) = x.tuple
+  def wood[A: Field](x: (A, A, A, A)) = {
+    val (x1, x2, x3, x4) = x
     val t1               = 100 * (((x1 ** 2) - x2) ** 2)
     val t2               = (x1 - 1) ** 2 + (x3 - 1) ** 2
     val t3               = 90 * ((x3 ** 2 - x4) ** 2)
@@ -1525,26 +1526,26 @@ object Benchmarks {
     t1 + t2 + t3 + t4 + t5
   }
 
-  def xinSheYang2[N <: Nat, A: Field: Signed: Trig](x: Dimension[N, A]) = {
-    val t1 = x.mapSum(abs(_))
-    val t2 = exp(-x.mapSum(xi => sin(xi ** 2)))
+  def xinSheYang2[A: Field: Signed: Trig](x: NonEmptyList[A]) = {
+    val t1 = mapSum(x)(abs(_))
+    val t2 = exp(-mapSum(x)(xi => sin(xi ** 2)))
     t1 * t2
   }
 
-  def xinSheYang3[N <: Nat, A: Field: NRoot: Trig](m: A = 5.0)(x: Dimension[N, A]) = {
+  def xinSheYang3[A: Field: NRoot: Trig](m: A = 5.0)(x: NonEmptyList[A]) = {
     val β = 15.0
-    val u = x.mapSum(xi => (xi / β).fpow(2 * m))
-    val v = x.mapSum(_ ** 2)
-    val w = x.mapProduct(xi => cos(xi) ** 2)
+    val u = mapSum(x)(xi => (xi / β).fpow(2 * m))
+    val v = mapSum(x)(_ ** 2)
+    val w = mapProduct(x)(xi => cos(xi) ** 2)
     exp(-u) - 2 * exp(-v) * w
   }
 
-  def xinSheYang4[N <: Nat, A: Field: NRoot: Signed: Trig](x: Dimension[N, A]) = {
-    val u = x.mapSum(xi => sin(xi) ** 2)
-    val v = x.mapSum(_ ** 2)
-    val w = x.mapSum(xi => sin(sqrt(abs(xi))) ** 2)
+  def xinSheYang4[A: Field: NRoot: Signed: Trig](x: NonEmptyList[A]) = {
+    val u = mapSum(x)(xi => sin(xi) ** 2)
+    val v = mapSum(x)(_ ** 2)
+    val w = mapSum(x)(xi => sin(sqrt(abs(xi))) ** 2)
     (u - exp(-v)) * exp(-w)
-  }*/
+  }
 
   def yaoLiu4[A: Signed: Ordering: Ord](x: NonEmptyList[A]) =
     x.map(abs(_)).max
