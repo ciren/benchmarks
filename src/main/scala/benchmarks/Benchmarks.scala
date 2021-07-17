@@ -1544,14 +1544,13 @@ object Benchmarks {
     val v = x.mapSum(_ ** 2)
     val w = x.mapSum(xi => sin(sqrt(abs(xi))) ** 2)
     (u - exp(-v)) * exp(-w)
-  }
+  }*/
 
-  def yaoLiu4[N <: Nat, A: Signed: Ordering](x: Dimension[N, A]) =
+  def yaoLiu4[A: Signed: Ordering: Ord](x: NonEmptyList[A]) =
     x.map(abs(_)).max
 
-  def yaoLiu9[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
- x.mapSum(xi => (xi ** 2) - 10 * cos(2 * pi * xi) + 10)
- */
+  def yaoLiu9[A: Field: Trig](x: NonEmptyList[A]) =
+    mapSum(x)(xi => (xi ** 2) - 10 * cos(2 * pi * xi) + 10)
 
   def zakharov[A: Field: IsReal](x: NonEmptyList[A]) = {
     val t = mapSum(x.zipWithIndex) { case (xi, i) => 0.5 * i * xi }
