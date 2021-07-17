@@ -1,17 +1,26 @@
-//package benchmarks
+package benchmarks
+
+import zio.prelude._
+import zio.test._
 
 // import shapeless._
 
 // import org.scalacheck._
 // import org.scalacheck.Prop._
 
-// import spire.implicits._
-// import spire.math._
+import spire.implicits._
+import spire.math._
 
 // import Benchmarks._
 // import implicits._
 // import dimension.Generators._
 
+import Benchmarks._
+import Generators._
+
+object BenchmarkTests extends DefaultRunnableSpec {
+
+  def spec: ZSpec[Environment, Failure] = suite("Benchmarks")(
 // object BenchmarksTest extends Properties("Benchmarks") {
 //   val zero3 = Sized(0.0, 0.0, 0.0)
 
@@ -23,7 +32,15 @@
 //     def ~(v: Double) = abs(v - d) <= epsilon
 //   }
 
-//   property("absoluteValue") = forAll(genSized(-100.0, 100.0)) { g =>
+    testM("absoluteValue") {
+      check(nelGen(10)) { case xs =>
+        val abs = absoluteValue(xs)
+
+        //assert(abs)(Assertion.isEqualTo(absoluteValue(xs.map(_ * -1)))) &&
+        assert(abs)(Assertion.isGreaterThanEqualTo(0.0)) &&
+        assert(abs)(Assertion.isGreaterThanEqualTo(mapSum(xs)(xi => xi)))
+      }
+      //= forAll(genSized(-100.0, 100.0)) { g =>
 //     val abs = absoluteValue(g)
 //     abs === absoluteValue(g.map(_ * -1)) &&
 //     abs >= 0.0 &&
@@ -33,6 +50,7 @@
 //     absoluteValue(Sized(1.0, 2.0, 3.0)) === 6.0 &&
 //     absoluteValue(Sized(-1.0, -2.0, -3.0)) === 6.0
 //   }
+    }
 
 //   property("ackley") = forAll(genSized(-32.768, 32.768)) { g =>
 //     ackley(g) >= 0.0
@@ -1037,5 +1055,5 @@
 //   property("zirilli2") = forAll(gen2(-500.0, 500.0)) { g =>
 //     zirilli2(g) >= 0.0
 //   } && zirilli2(Sized(0.0, 0.0)) === 0.0
-
-// }
+  )
+}

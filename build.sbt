@@ -2,8 +2,12 @@ import sbt._
 import Keys._
 
 val spireVersion      = "0.17.0-RC1"
+val zioVersion = "1.0.8"
 
 val zioPrelude = "dev.zio" %% "zio-prelude"  % "1.0.0-RC5"
+val zioTest    = "dev.zio" %% "zio-test"     % zioVersion % Test
+val zioTestSbt = "dev.zio" %% "zio-test-sbt" % zioVersion % Test
+
 val spire = "org.typelevel" %% "spire" % spireVersion
 val cilibCore = "net.cilib" %% "cilib-core" % "2.0.1"
 
@@ -59,8 +63,11 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   zioPrelude,
   spire,
-  cilibCore
+  cilibCore,
+  zioTest, zioTestSbt
 )
+
+testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
 
 publishMavenStyle := true
 
