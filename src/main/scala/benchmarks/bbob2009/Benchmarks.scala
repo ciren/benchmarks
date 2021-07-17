@@ -1,20 +1,20 @@
-package benchmarks
-package bbob2009
+// package benchmarks
+// package bbob2009
 
-import Helpers._
-import _root_.scala.Predef.{ any2stringadd => _, _ }
-import benchmarks.Benchmarks._
-import benchmarks.implicits._
-import dimension._
-import matrix._
-import scalaz.Scalaz._
-import shapeless._
-import shapeless.ops.nat._
-import spire.algebra._
-import spire.implicits._
-import spire.math._
+// import Helpers._
+// import _root_.scala.Predef.{ any2stringadd => _, _ }
+// import benchmarks.Benchmarks._
+// import benchmarks.implicits._
+// import dimension._
+// import matrix._
+// import scalaz.Scalaz._
+// import shapeless._
+// import shapeless.ops.nat._
+// import spire.algebra._
+// import spire.implicits._
+// import spire.math._
 
-import cilib._
+// import cilib._
 
 /*
  * Based on: Real-Parameter Black-Box Optimization Benchmarking 2009:
@@ -22,9 +22,9 @@ import cilib._
  *
  * by N. Hansen, S. Finck, R. Ros and A. Auger
  */
-object Benchmarks {
+//object Benchmarks {
 
-  def penalty[N <: Nat, A: Order: Signed](x: Dimension[N, A])(implicit A: Field[A]): A =
+/*  def penalty[N <: Nat, A: Order: Signed](x: Dimension[N, A])(implicit A: Field[A]): A =
     x mapSum { xi =>
       max(A.fromDouble(0.0), abs(xi) - 5) ** 2
     }
@@ -518,5 +518,5 @@ object Benchmarks {
 
         term1 + 10 * term2 + (10 ** 4) * penalty(x) + fbias
     }
-
-}
+ */
+//}

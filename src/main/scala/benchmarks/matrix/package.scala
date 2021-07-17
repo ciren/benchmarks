@@ -1,11 +1,11 @@
-package benchmarks
+///package benchmarks
 
-import dimension._
-import matrix.syntax._
-import shapeless._
+// import dimension._
+// import matrix.syntax._
+// import shapeless._
 
-package object matrix {
-  type Matrix[C <: Nat, R <: Nat, A] = Dimension[C, Dimension[R, A]]
+// package object matrix {
+//   type Matrix[C <: Nat, R <: Nat, A] = Dimension[C, Dimension[R, A]]
 
-  object implicits extends MatrixSyntax
-}
+//   object implicits extends MatrixSyntax
+// }
