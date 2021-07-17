@@ -73,4 +73,41 @@ package object benchmarks {
           case _ => sys.error(s"Input vector dimension is not the same as the benchmark function. Expected length 6 but got length ${a.size}")
         }
     }
+
+  implicit val Tuple7ToInput: Input[({ type lambda[A] = (A, A, A, A, A, A, A) })#lambda] =
+    new Input[({ type lambda[A] = (A, A, A, A, A, A, A) })#lambda] {
+      def toInput[A](a: scalaz.NonEmptyList[A]): (A, A, A, A, A, A, A) =
+        a.list.toList match {
+          case x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: Nil => (x1, x2, x3, x4, x5, x6, x7)
+          case _ => sys.error(s"Input vector dimension is not the same as the benchmark function. Expected length 7 but got length ${a.size}")
+        }
+    }
+
+  implicit val Tuple8ToInput: Input[({ type lambda[A] = (A, A, A, A, A, A, A, A) })#lambda] =
+    new Input[({ type lambda[A] = (A, A, A, A, A, A, A, A) })#lambda] {
+      def toInput[A](a: scalaz.NonEmptyList[A]): (A, A, A, A, A, A, A, A) =
+        a.list.toList match {
+          case x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: Nil => (x1, x2, x3, x4, x5, x6, x7, x8)
+          case _ => sys.error(s"Input vector dimension is not the same as the benchmark function. Expected length 8 but got length ${a.size}")
+        }
+    }
+
+  implicit val Tuple9ToInput: Input[({ type lambda[A] = (A, A, A, A, A, A, A, A, A) })#lambda] =
+    new Input[({ type lambda[A] = (A, A, A, A, A, A, A, A, A) })#lambda] {
+      def toInput[A](a: scalaz.NonEmptyList[A]): (A, A, A, A, A, A, A, A, A) =
+        a.list.toList match {
+          case x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: Nil => (x1, x2, x3, x4, x5, x6, x7, x8, x9)
+          case _ => sys.error(s"Input vector dimension is not the same as the benchmark function. Expected length 9 but got length ${a.size}")
+        }
+    }
+
+  implicit val Tuple10ToInput: Input[({ type lambda[A] = (A, A, A, A, A, A, A, A, A, A) })#lambda] =
+    new Input[({ type lambda[A] = (A, A, A, A, A, A, A, A, A, A) })#lambda] {
+      def toInput[A](a: scalaz.NonEmptyList[A]): (A, A, A, A, A, A, A, A, A, A) =
+        a.list.toList match {
+          case x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: x10 :: Nil => (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10)
+          case _ => sys.error(s"Input vector dimension is not the same as the benchmark function. Expected length 10 but got length ${a.size}")
+        }
+    }
+
 }

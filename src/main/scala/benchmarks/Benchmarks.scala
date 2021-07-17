@@ -1086,21 +1086,20 @@ object Benchmarks {
       case (xi, xi1) => 100 * ((xi1 - (xi ** 2)) ** 2) + ((xi - 1) ** 2)
     }
 
-/*
-  def ripple1[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    x.mapSum { xi =>
+  def ripple1[A: Field: Trig](x: NonEmptyList[A]) =
+    mapSum(x) { xi =>
       val u = -2 * log(2) * (((xi - 0.1) / 0.8) ** 2)
       val v = (sin(5 * pi * xi) ** 6) + 0.1 * (cos(500 * pi * xi) ** 2)
       -exp(u) * v
     }
 
-  def ripple2[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    x.mapSum { xi =>
+  def ripple2[A: Field: Trig](x: NonEmptyList[A]) =
+    mapSum(x) { xi =>
       val u = -2 * log(2) * (((xi - 0.1) / 0.8) ** 2)
       val v = (sin(5 * pi * xi) ** 6)
       -exp(u) * v
     }
-
+/*
   def rotatedEllipse1[N <: Nat: GTEq2, A: Field](x: Dimension[N, A]) =
     x.pairs.mapSum {
       case (x1, x2) =>
@@ -1307,20 +1306,20 @@ object Benchmarks {
     val tX1      = 4 * (x1 ** 2) - 2.1 * (x1 ** 4) + ((x1 ** 6) / 3.0)
     val tX2      = x1 * x2 - 4 * (x2 ** 2) + 4 * (x2 ** 4)
     tX1 + tX2
-  }
+  }*/
 
-  def spherical[N <: Nat, A: Ring](x: Dimension[N, A]): A =
-    x.mapSum(_ ** 2)
+  def spherical[A: Ring](x: NonEmptyList[A]) =
+    mapSum(x)(_ ** 2)
 
-  def step1[N <: Nat, A: IsReal: Ring: Signed](x: Dimension[N, A]) =
-    x.mapSum(xi => floor(abs(xi)))
+  def step1[A: IsReal: Ring: Signed](x: NonEmptyList[A]) =
+    mapSum(x)(xi => floor(abs(xi)))
 
-  def step2[N <: Nat, A: Field: IsReal](x: Dimension[N, A]) =
-    x.mapSum(xi => (floor(xi) + 0.5) ** 2)
+  def step2[A: Field: IsReal](x: NonEmptyList[A]) =
+    mapSum(x)(xi => (floor(xi) + 0.5) ** 2)
 
-  def step3[N <: Nat, A: IsReal: Ring](x: Dimension[N, A]) =
-    x.mapSum(xi => floor(xi ** 2))
-
+  def step3[A: IsReal: Ring](x: NonEmptyList[A]) =
+    mapSum(x)(xi => floor(xi ** 2))
+/*
   def stretchedVSineWave[N <: Nat: GTEq2, A: Field: NRoot: Trig](x: Dimension[N, A]) =
     x.pairs.mapSum {
       case (xi, xi1) =>
@@ -1551,32 +1550,33 @@ object Benchmarks {
     x.map(abs(_)).max
 
   def yaoLiu9[N <: Nat, A: Field: Trig](x: Dimension[N, A]) =
-    x.mapSum(xi => (xi ** 2) - 10 * cos(2 * pi * xi) + 10)
+ x.mapSum(xi => (xi ** 2) - 10 * cos(2 * pi * xi) + 10)
+ */
 
-  def zakharov[N <: Nat, A: Field: IsReal](x: Dimension[N, A]) = {
-    val t = x.zipWithIndex.mapSum { case (xi, i) => 0.5 * i * xi }
+  def zakharov[A: Field: IsReal](x: NonEmptyList[A]) = {
+    val t = mapSum(x.zipWithIndex) { case (xi, i) => 0.5 * i * xi }
     spherical(x) + (t ** 2) + (t ** 4)
   }
 
-  def zeroSum[N <: Nat, A: Signed: NRoot](x: Dimension[N, A])(implicit A: Field[A]) = {
-    val sum = x.mapSum(xi => xi)
+  def zeroSum[A: Signed: NRoot](x: NonEmptyList[A])(implicit A: Field[A]) = {
+    val sum = mapSum(x)(xi => xi)
     if (sum == 0.0) A.zero
     else 1 + ((10000 * abs(sum)) ** 0.5)
   }
 
-  def zettle[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def zettle[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     (x1 ** 2 + x2 ** 2 - 2 * x1) ** 2 + x1 / 4
   }
 
-  def zirilli1[A: Field](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def zirilli1[A: Field](x: (A, A)) = {
+    val (x1, x2) = x
     0.25 * (x1 ** 4) - 0.5 * (x1 ** 2) + 0.1 * x1 + 0.5 * (x2 ** 2)
   }
 
-  def zirilli2[A: Field: Trig](x: Dimension2[A]) = {
-    val (x1, x2) = x.tuple
+  def zirilli2[A: Field: Trig](x: (A, A)) = {
+    val (x1, x2) = x
     0.5 * (x1 ** 2) + 0.5 * (1.0 - cos(2 * x1)) + (x2 ** 2)
   }
- */
+
 }
