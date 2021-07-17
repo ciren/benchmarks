@@ -16,6 +16,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 inThisBuild(
   List(
     organization := "net.cilib",
+    crossScalaVersions := Seq("2.12.12", "2.13.5"),// "3.0.0"),
     homepage := Some(url("https://cilib,net")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
