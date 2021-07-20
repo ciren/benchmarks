@@ -10,6 +10,7 @@ val zioTestSbt = "dev.zio" %% "zio-test-sbt" % zioVersion % Test
 
 val spire = "org.typelevel" %% "spire" % spireVersion
 val cilibCore = "net.cilib" %% "cilib-core" % "2.0.1"
+val attoCore = "org.tpolecat" %% "atto-core" % "0.9.5"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -65,6 +66,7 @@ libraryDependencies ++= Seq(
   zioPrelude,
   spire,
   cilibCore,
+  attoCore,
   zioTest, zioTestSbt
 )
 

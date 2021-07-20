@@ -1,20 +1,18 @@
-// package benchmarks
-// package cec
-// package cec2005
-//
-// import _root_.scala.Predef.{ any2stringadd => _, _ }
-// import benchmarks.Benchmarks._
-// import benchmarks.cec.Helper
-// import benchmarks.dimension._
-// import benchmarks.implicits._
-// import scalaz.{ Ordering => _, _ }, Scalaz._
-// import shapeless._
-// import shapeless.ops.nat._
-// import spire.algebra._
-// import spire.implicits._
-// import spire.math.{ abs, cos, round, sin }
+package benchmarks
+package cec
+package cec2005
 
-// import cilib._
+
+import benchmarks.matrix._
+
+import zio._
+import zio.prelude.{NonEmptyList, ZValidation}
+import benchmarks.Benchmarks._
+import spire.algebra._
+import spire.implicits._
+import spire.math.{ abs, cos, round, sin }
+
+import cilib.{RVar, Dist}
 
 /*
  * Based on: Problem Definitions and Evaluation Criteria for the CEC 2005
@@ -23,49 +21,98 @@
  * by P. N. Suganthan, N. Hansen, J. J. Liang, K. Deb, Y. -P. Chen, A. Auger,
  * S. Tiwari
  */
+object Benchmarks {
 
-//object Benchmarks {
+  def shift[A:Field](x: NonEmptyList[A], o: NonEmptyList[Double]): NonEmptyList[A] =
+    x.zipWith(o)(_ - _)
+
+  def rotate[A:Field](x: Vector[A], m: Matrix[Double]): Vector[A] = {
+
+    def innerProduct(other: Vector[Double])(implicit ev: Ring[A]): A =
+      x.zip(other)
+        .map { case (xi, oi) => xi * oi }
+        .foldLeft(ev.zero)(_ + _)
+
+    // matrix transpose
+    def transpose(matrix: Matrix[Double]) =
+      Matrix.wrap(m.transpose: _*)
+
+    transpose(m).map(z => innerProduct(z))
+  }
+
   /*
    * F1: Shifted Sphere Function
    * x ∈ [-100, 100]D
    */
-  // def f1[N <: Nat, A: Ring](x: Dimension[N, A])(implicit P: F1Params[N, A]): A =
-  //   P.params match {
-  //     case (o, fbias) => spherical(x shift o) + fbias
-  //   }
+  def f1[A: Ring: Field](x: NonEmptyList[A]): A = {
+    val bias:Double = -450
+    val shifted = shift(x, Data.sphere_func_data)
+
+    spherical(shifted) + bias
+  }
 
   /*
    * F2: Shifted Schwefel’s Problem 1.2
    * x ∈ [-100, 100]D
-  //  */
-  // def f2[N <: Nat, A: Ring](x: Dimension[N, A])(implicit P: F2Params[N, A]): A =
-  //   P.params match {
-  //     case (o, fbias) => schwefel12(x shift o) + fbias
-  //   }
+   */
+  def f2[A: Ring: Field](x: NonEmptyList[A]): A = {
+    val bias: Double = -450
+    val shifted = shift(x, Data.schwefel_102_data)
+
+    schwefel12(shifted) + bias
+  }
 
   /*
    * F3: Shifted Rotated High Conditioned Elliptic Function
    * x ∈ [-100, 100]D
    */
-  // def f3[N <: Nat: GTEq2, A: Field](x: Dimension[N, A])(implicit P: F3Params[N, A]): A =
-  //   P.params match {
-  //     case (o, m, fbias) => {
-  //       val z = x.shift(o).rotate(m)
-  //       elliptic(z) + fbias
-  //     }
-  //   }
+  def f3[A: Ring: Field](x: AtLeast2List[A]): A = {
+    val list = AtLeast2List.unwrap(x)
+    val n = list.length
+    val bias = -450
+
+    val o = NonEmptyList.fromIterable(
+      Data.high_cond_elliptic_rot_data.head,
+      Data.high_cond_elliptic_rot_data.take(n-1))
+
+    val m =
+      Runtime.default.unsafeRun(
+        if (n <= 2) Data.elliptic_M_D2
+        else if (n <= 10) Data.elliptic_M_D10
+        else if (n <= 30) Data.elliptic_M_D30
+        else Data.elliptic_M_D50
+      )
+
+    val z = shift(list, o)
+    val rotated = rotate(z.toVector, m) match {
+      case x +: xs =>
+        AtLeast2List.make(NonEmptyList.fromIterable(x, xs)) match {
+          case ZValidation.Success(_, v) => v
+          case ZValidation.Failure(_, e) => sys.error(e.toString())
+        }
+    }
+
+    elliptic(rotated) + bias
+  }
 
   /*
    * F4: Shifted Schwefel’s Problem 1.2 with Noise in Fitness
    * x ∈ [-100, 100]D
    */
-  // def f4[N <: Nat, A: Field: Signed](x: Dimension[N, A])(implicit P: F4Params[N, A]): RVar[A] =
-  //   P.params match {
-  //     case (o, fbias, noise) =>
-  //       noise map { n =>
-  //         schwefel12(x shift o) * (1.0 + 0.4 * abs(n)) + fbias
-  //       }
-  //   }
+  def f4[A: Field: Signed](x: NonEmptyList[A]): RVar[A] = {
+    val bias = -450
+    val o = Data.schwefel_102_data
+    val z = shift(x, o)
+
+    Dist.stdNormal.map(noise =>
+      schwefel12(z) * (1.0 + 0.4 * abs(noise)) + bias
+    )
+  }
+
+
+  // val fbias =
+  //   NonEmptyList(-310, 390, -180, -140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
+
 
   /*
    * F5: Schwefel’s Problem 2.6 with Global Optimum on Bounds
@@ -75,13 +122,13 @@
   //   P.params match {
   //     case (o, a, fbias) => {
   //       val b = o rotate a
-  //       // x => {
   //       val z = x rotate a
 
   //       (z zip b).map { case (zi, bi) => abs(zi - bi) }.max + fbias
-  //       // }
   //     }
   //   }
+
+
 
   /*
    * F6: Shifted Rosenbrock’s Function
@@ -557,4 +604,4 @@
   //       val f = f24[N, A]
   //       x => f(x) map { _ - f24bias + fbias }
   //   }
-//}
+}
