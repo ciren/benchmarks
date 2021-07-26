@@ -92,4 +92,19 @@ object Data {
   lazy val griewank_M_D50: Matrix[Double] =
     parseResourceMatrix("cec2005/griewank_M_D50.txt")
 
+  lazy val ackley_func_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/ackley_func_data.txt")
+
+  lazy val ackley_M_D2: Matrix[Double] =
+    parseResourceMatrix("cec2005/ackley_M_D2.txt")
+
+  lazy val ackley_M_D10: Matrix[Double] =
+    parseResourceMatrix("cec2005/ackley_M_D10.txt")
+
+  lazy val ackley_M_D30: Matrix[Double] =
+    parseResourceMatrix("cec2005/ackley_M_D30.txt")
+
+  lazy val ackley_M_D50: Matrix[Double] =
+    parseResourceMatrix("cec2005/ackley_M_D50.txt")
+
 }
