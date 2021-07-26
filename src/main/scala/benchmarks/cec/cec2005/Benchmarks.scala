@@ -217,10 +217,24 @@ object Benchmarks {
    * F10: Shifted Rotated Rastrigin’s Function
    * x ∈ [−5,5]D
    */
-  // def f10[N <: Nat, A: Field: Trig](x: Dimension[N, A])(implicit P: F10Params[N, A]): A =
-  //   P.params match {
-  //     case (o, m, fbias) => rastrigin(x.shift(o).rotate(m)) + fbias
-  //   }
+  def f10[A: Field: Trig](x: NonEmptyList[A]): A = {
+    // P.params match {
+    //   case (o, m, fbias) => rastrigin(x.shift(o).rotate(m)) + fbias
+    // }
+    val n = x.size
+    val bias = -330.0
+    val o = Data.rastrigin_func_data
+
+    val m =
+      if (n <= 2) Data.rastrigin_M_D2
+      else if (n <= 10) Data.rastrigin_M_D10
+      else if (n <= 30) Data.rastrigin_M_D30
+      else Data.rastrigin_M_D50
+
+    val z = rotate(shift(x, o).toVector, m)
+
+    rastrigin(NonEmptyList.fromIterable(z.head, z.tail)) + bias
+  }
 
   /*
    * F11: Shifted Rotated Weierstrass Function
