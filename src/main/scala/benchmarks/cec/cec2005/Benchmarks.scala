@@ -5,12 +5,11 @@ package cec2005
 
 import benchmarks.matrix._
 
-import zio._
 import zio.prelude.{NonEmptyList, ZValidation}
 import benchmarks.Benchmarks._
 import spire.algebra._
 import spire.implicits._
-import spire.math.{ abs, cos, round, sin }
+import spire.math.{ abs, cos, round, sin, ceil, floor }
 
 import cilib.{RVar, Dist}
 
@@ -26,16 +25,15 @@ object Benchmarks {
   def shift[A:Field](x: NonEmptyList[A], o: NonEmptyList[Double]): NonEmptyList[A] =
     x.zipWith(o)(_ - _)
 
-  def rotate[A:Field](x: Vector[A], m: Matrix[Double]): Vector[A] = {
+  // matrix transpose
+  def transpose(matrix: Matrix[Double]) =
+    Matrix.wrap(matrix.transpose: _*)
 
+  def rotate[A:Field](x: Vector[A], m: Matrix[Double]): Vector[A] = {
     def innerProduct(other: Vector[Double])(implicit ev: Ring[A]): A =
       x.zip(other)
         .map { case (xi, oi) => xi * oi }
         .foldLeft(ev.zero)(_ + _)
-
-    // matrix transpose
-    def transpose(matrix: Matrix[Double]) =
-      Matrix.wrap(m.transpose: _*)
 
     transpose(m).map(z => innerProduct(z))
   }
@@ -45,7 +43,7 @@ object Benchmarks {
    * x ∈ [-100, 100]D
    */
   def f1[A: Ring: Field](x: NonEmptyList[A]): A = {
-    val bias:Double = -450
+    val bias = -450
     val shifted = shift(x, Data.sphere_func_data)
 
     spherical(shifted) + bias
@@ -56,7 +54,7 @@ object Benchmarks {
    * x ∈ [-100, 100]D
    */
   def f2[A: Ring: Field](x: NonEmptyList[A]): A = {
-    val bias: Double = -450
+    val bias = -450
     val shifted = shift(x, Data.schwefel_102_data)
 
     schwefel12(shifted) + bias
@@ -71,17 +69,13 @@ object Benchmarks {
     val n = list.length
     val bias = -450
 
-    val o = NonEmptyList.fromIterable(
-      Data.high_cond_elliptic_rot_data.head,
-      Data.high_cond_elliptic_rot_data.take(n-1))
+    val o = NonEmptyList.fromIterableOption(Data.high_cond_elliptic_rot_data).get
 
     val m =
-      Runtime.default.unsafeRun(
-        if (n <= 2) Data.elliptic_M_D2
-        else if (n <= 10) Data.elliptic_M_D10
-        else if (n <= 30) Data.elliptic_M_D30
-        else Data.elliptic_M_D50
-      )
+      if (n <= 2) Data.elliptic_M_D2
+      else if (n <= 10) Data.elliptic_M_D10
+      else if (n <= 30) Data.elliptic_M_D30
+      else Data.elliptic_M_D50
 
     val z = shift(list, o)
     val rotated = rotate(z.toVector, m) match {
@@ -100,47 +94,63 @@ object Benchmarks {
    * x ∈ [-100, 100]D
    */
   def f4[A: Field: Signed](x: NonEmptyList[A]): RVar[A] = {
+    f4Noise(x, Dist.stdNormal)
+  }
+
+  def f4Noise[A: Field: Signed](x: NonEmptyList[A], noise: RVar[Double]): RVar[A] = {
     val bias = -450
     val o = Data.schwefel_102_data
     val z = shift(x, o)
 
-    Dist.stdNormal.map(noise =>
-      schwefel12(z) * (1.0 + 0.4 * abs(noise)) + bias
+    noise.map(n =>
+      schwefel12(z) * (1.0 + 0.4 * abs(n)) + bias
     )
   }
-
-
-  // val fbias =
-  //   NonEmptyList(-310, 390, -180, -140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
-
 
   /*
    * F5: Schwefel’s Problem 2.6 with Global Optimum on Bounds
    * x ∈ [−100,100]D
    */
-  // def f5[N <: Nat, A: Field: Signed: Ordering](x: Dimension[N, A])(implicit P: F5Params[N, A]): A =
-  //   P.params match {
-  //     case (o, a, fbias) => {
-  //       val b = o rotate a
-  //       val z = x rotate a
+  def f5[A: Field: Signed: Ordering](x: NonEmptyList[A]): A = {
+    val bias = -310
+    val n = x.size
 
-  //       (z zip b).map { case (zi, bi) => abs(zi - bi) }.max + fbias
-  //     }
-  //   }
+    val shift = Data.schwefel_206_data.head.take(n)
+    val o = shift.zipWithIndex map {
+      case (oi, i) =>
+        if ((i + 1) <= ceil(n / 4.0)) -100.0
+        else if ((i + 1) >= floor((3.0 * n) / 4.0)) 100.0
+        else oi
+    }
 
+    val a = transpose(Data.schwefel_206_data.tail.take(n)) // slow?
+
+    val b = rotate(o, a)
+    val z = rotate(x.toVector, a)
+
+    (z zip b).map { case (zi, bi) => abs(zi - bi) }.max + bias
+  }
+
+
+  // val fbias =
+  //   NonEmptyList(-180, -140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
 
 
   /*
    * F6: Shifted Rosenbrock’s Function
    * x ∈ [−100,100]D
    */
-  // def f6[N <: Nat: GTEq2, A: Field](x: Dimension[N, A])(implicit P: F6Params[N, A]): A =
-  //   P.params match {
-  //     case (o, fbias) => {
-  //       val z = (x shift o) map { _ + 1.0 }
-  //       rosenbrock(z) + fbias
-  //     }
-  //   }
+  def f6[A: Field](x: AtLeast2List[A]): A = {
+    val bias = 390
+    val o = Data.rosenbrock_func_data
+    val n = shift(AtLeast2List.unwrap(x), o).map(_ + 1.0)
+    val z = AtLeast2List.make(n) match {
+      case ZValidation.Success(_, v) => v
+      case ZValidation.Failure(_, e) => sys.error(e.toString())
+    }
+
+    rosenbrock(z) + bias
+  }
 
   /*
    * F7: Shifted Rotated Griewank’s Function without Bounds

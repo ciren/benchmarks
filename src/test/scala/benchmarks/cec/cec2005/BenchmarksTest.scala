@@ -1,46 +1,57 @@
-// package benchmarks
-// package cec
-// package cec2005
+package benchmarks
+package cec
+package cec2005
 
-// import org.scalacheck._
-// import org.scalacheck.Prop._
+import zio.prelude._
+import zio.test._
+import spire.math.{abs}
+import spire.implicits._
 
-// import shapeless._
-// import shapeless.ops.nat.ToInt
+import cilib.{RVar, RNG}
+import Generators._
+import benchmarks.cec.cec2005.Benchmarks._
 
-// import spire.implicits._
-// import spire.math.{abs,pi}
+object CEC2005BenchmarkTest extends DefaultRunnableSpec {
 
-// import cilib._
+  val rng0 = RNG.init(0)
 
-// import benchmarks.cec.Helper
-// import benchmarks.dimension._
-// import benchmarks.implicits.{f4Params=>_, f17Params=>_, f24Params=>_, _}
-// import Benchmarks._
-// import Generators._
+  def validate[F[+_]](
+    f: F[Double] => Double,
+    x: F[Double],
+    bias: Double,
+    y: (Double, Double),
+    point: F[Double]
+  ) =
+    assert(f(x))(Assertion.isGreaterThanEqualTo(bias)) &&
+    assert(abs(y._1 - f(point)))(Assertion.isLessThanEqualTo(10.0 ** -y._2))
+
+
+  def validateR[F[+_]](
+    f: F[Double] => RVar[Double],
+    x: F[Double],
+    bias: Double,
+    y: (Double, Double),
+    point: F[Double]
+  ) =
+    assert(f(x).eval(rng0))(Assertion.isGreaterThanEqualTo(bias)) &&
+    assert(abs(y._1 - f(point).eval(rng0)))(Assertion.isLessThanEqualTo(10.0 ** -y._2))
+
+
+  def toAtLeast2List(x: NonEmptyList[Double]): AtLeast2List[Double] =
+    AtLeast2List.make(x) match {
+      case ZValidation.Success(_, v) => v
+      case ZValidation.Failure(_, e) => sys.error(e.toString())
+    }
+
+  val point2 = NonEmptyList(0.0, 1.0)
+  val point10 = NonEmptyList.fromIterableOption((0 until 10).map(_.toDouble)).get
+  val point30 = NonEmptyList.fromIterableOption((0 until 30).map(_.toDouble)).get
+  val point50 = NonEmptyList.fromIterableOption((0 until 50).map(_.toDouble)).get
+
+  def spec: ZSpec[Environment,Failure] = suite("CEC2005 Benchmarks")(
 
 // object BenchmarksTest extends Properties("CEC2005 Benchmarks") {
-//   implicit class DoubleEpsilonOps(val d: Double) extends AnyVal {
-//     def ~(v: Double, e: Double) = abs(v - d) <= 10.0 ** -e
-//   }
 
-//   sealed trait FBias { val fbias: Double }
-
-//   val r = RNG init 0
-//   val helper = Helper("cec2005")
-
-//   implicit val p2:  Dimension[_2, Double] = Sized(0.0, 1.0)
-//   implicit val p10: Dimension[_10,Double] = Sized.wrap((0 until 10).toVector.map(_.toDouble))
-//   implicit val p30: Dimension[_30,Double] = Sized.wrap((0 until 30).toVector.map(_.toDouble))
-//   implicit val p50: Dimension[_50,Double] = Sized.wrap((0 until 50).toVector.map(_.toDouble))
-
-//   implicit def f4ParamsNoNoise[N<:Nat:ToInt] = new F4Params[N,Double] {
-//     val params = (
-//       helper.shiftFromResource[N]("schwefel_102_data.txt"),
-//       helper.fbiasFromResource(4),
-//       RVar.point(0.0)
-//     )
-//   }
 //   implicit val f17ParamsNoNoise = new F17Params[Double] {
 //     val params = (helper.fbiasFromResource(17), RVar.point(0.0))
 //   }
@@ -54,46 +65,59 @@
 //       )
 //     }
 
-//   def validate[N<:Nat](
-//     f: Dimension[N,Double] => Double,
-//     x: Dimension[N,Double],
-//     y: (Double, Double))(implicit ev: FBias, point: Dimension[N,Double]): Prop = {
-//       (f(x)      >= ev.fbias)    :| s"f(s${x.size}) >= global minimum" &&
-//       (f(point)  ~ (y._1, y._2)) :| s"JAVA implementation ${point.size}"
-//     }
+    //   property("F1") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+    //     implicit val fbias = new FBias { val fbias = -450.0 }
+    //     validate[_2] (f1, s2,  (4447.8239016200005, 20)) &&
+    //     validate[_10](f1, s10, (27858.83407531,     20)) &&
+    //     validate[_30](f1, s30, (93750.44521420001,  20)) &&
+    //     validate[_50](f1, s50, (188185.93987866005, 10))
+    //   }
+    testM("F1") {
+      val bias = -450.0
+      check(genCECSized(-100, 100)) {
+        case (s2, s10, s30, s50) =>
+          validate(f1[Double], s2,  bias, (4447.8239016200005, 20), point2) &&
+          validate(f1[Double], s10, bias, (27858.83407531,     20), point10) &&
+          validate(f1[Double], s30, bias, (93750.44521420001,  20), point30) &&
+          validate(f1[Double], s50, bias, (188185.93987866005, 10), point50)
+      }
+    },
+    //   property("F2") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+    //     implicit val fbias = new FBias { val fbias = -450.0 }
+    //     validate[_2] (f2, s2,  (3150.7609202500003,  20)) &&
+    //     validate[_10](f2, s10, (99459.43179384002,   20)) &&
+    //     validate[_30](f2, s30, (4621314.251146632,   20)) &&
+    //     validate[_50](f2, s50, (3.989686720149214E7,  8))
+    //   }
+    testM("F2") {
+      val bias = -450.0
+      check(genCECSized(-100.0, 100.0)) {
+        case (s2, s10, s30, s50) =>
+          validate(f2[Double], s2,  bias, (3150.7609202500003,  20), point2) &&
+          validate(f2[Double], s10, bias, (99459.43179384002,   20), point10) &&
+          validate(f2[Double], s30, bias, (4621314.251146632,   20), point30) &&
+          validate(f2[Double], s50, bias, (3.989686720149214E7,  8), point50)
+      }
+    },
+    //   property("F3") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+    //     implicit val fbias = new FBias { val fbias = -450.0 }
+    //     validate[_2] (f3, s2,  (3.270670729443313E9,  10)) &&
+    //     validate[_10](f3, s10, (1.7626359593380923E9,  6)) &&
+    //     validate[_30](f3, s30, (4.831191594054285E9,   5)) &&
+    //     validate[_50](f3, s50, (2.7057856612503826E10, 4))
+    //   }
+    testM("F3") {
+      val f: NonEmptyList[Double] => Double = x => f3(toAtLeast2List(x))
+      println(s"point eval: ${3.270670729443313E9 - f(point2)}")
+      val bias = -450.0
 
-//   def validateR[N<:Nat](
-//     f: Dimension[N,Double] => RVar[Double],
-//     x: Dimension[N,Double],
-//     y: (Double, Double))(implicit ev: FBias, point: Dimension[N,Double]): Prop = {
-//     (f(x).eval(r)      >= ev.fbias)    :| s"f(s${x.size}) >= global minimum" &&
-//     (f(point).eval(r)  ~ (y._1, y._2)) :| s"JAVA implementation ${point.size}"
-//   }
-
-//   property("F1") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
-//     implicit val fbias = new FBias { val fbias = -450.0 }
-//     validate[_2] (f1, s2,  (4447.8239016200005, 20)) &&
-//     validate[_10](f1, s10, (27858.83407531,     20)) &&
-//     validate[_30](f1, s30, (93750.44521420001,  20)) &&
-//     validate[_50](f1, s50, (188185.93987866005, 10))
-//   }
-
-//   property("F2") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
-//     implicit val fbias = new FBias { val fbias = -450.0 }
-//     validate[_2] (f2, s2,  (3150.7609202500003,  20)) &&
-//     validate[_10](f2, s10, (99459.43179384002,   20)) &&
-//     validate[_30](f2, s30, (4621314.251146632,   20)) &&
-//     validate[_50](f2, s50, (3.989686720149214E7,  8))
-//   }
-
-//   property("F3") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
-//     implicit val fbias = new FBias { val fbias = -450.0 }
-//     validate[_2] (f3, s2,  (3.270670729443313E9,  10)) &&
-//     validate[_10](f3, s10, (1.7626359593380923E9,  6)) &&
-//     validate[_30](f3, s30, (4.831191594054285E9,   5)) &&
-//     validate[_50](f3, s50, (2.7057856612503826E10, 4))
-//   }
-
+      check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+        validate(f, s2,  bias, (3.270670729443313E9,  10), point2) &&
+        validate(f, s10, bias, (1.7626359593380923E9,  6), point10) &&
+        validate(f, s30, bias, (4.831191594054285E9,   5), point30) &&
+        validate(f, s50, bias, (2.7057856612503826E10, 4), point50)
+      }
+    },
 //   property("F4") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -450.0 }
 //     validateR[_2] (f4, s2,  (3150.7609202500002,  20)) &&
@@ -101,6 +125,17 @@
 //     validateR[_30](f4, s30, (4621314.251146632 ,  20)) &&
 //     validateR[_50](f4, s50, (3.989686720149214E7, 20))
 //   }
+    testM("F4") {
+      val bias = -450.0
+      def f(x: NonEmptyList[Double]) = f4Noise(x, RVar.point(0.0))
+
+      check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+        validateR(f, s2,  bias, (3150.7609202500002,  20), point2) &&
+        validateR(f, s10, bias, (99459.43179384002,   20), point10) &&
+        validateR(f, s30, bias, (4621314.251146632 ,  20), point30) &&
+        validateR(f, s50, bias, (3.989686720149214E7, 20), point50)
+      }
+    },
 
 //   property("F5") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -310.0 }
@@ -109,6 +144,16 @@
 //     validate[_30](f5, s30, (62241.8054,        20)) &&
 //     validate[_50](f5, s50, (65193.47299999998, 20))
 //   }
+    testM("F5") {
+      val bias = -310.0
+
+       check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+         validate(f5[Double], s2,  bias, (5818.0,            20), point2) &&
+         validate(f5[Double], s10, bias, (24810.7801,        20), point10) &&
+         validate(f5[Double], s30, bias, (62241.8054,        20), point30) &&
+         validate(f5[Double], s50, bias, (65193.47299999998, 20), point50)
+      }
+    },
 
 //   property("F6") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = 390.0 }
@@ -117,6 +162,17 @@
 //     validate[_30](f6, s30, (6.717859853500358E10,  20)) &&
 //     validate[_50](f6, s50, (1.3641793823548611E11, 20))
 //   }
+    testM("F6") {
+      val bias = 390.0
+      val f: NonEmptyList[Double] => Double = x => f6(toAtLeast2List(x))
+
+      check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
+        validate(f, s2,  bias, (4.0364713289297366E9,  20), point2) &&
+        validate(f, s10, bias, (1.553036764175096E10,  20), point10) &&
+        validate(f, s30, bias, (6.717859853500358E10,  20), point30) &&
+        validate(f, s50, bias, (1.3641793823548611E11, 20), point50)
+      }
+    }
 
 //   property("F7") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -180.0 }
@@ -269,4 +325,5 @@
 //     validateR[_30](f25, s30, (103828.33658202366, 10)) &&
 //     validateR[_50](f25, s50, (6559057.724458647,  7))
 //   }
-// }
+  )
+}
