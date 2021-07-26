@@ -231,7 +231,7 @@ object Benchmarks {
       else if (n <= 30) Data.rastrigin_M_D30
       else Data.rastrigin_M_D50
 
-    val z = rotate(shift(x, o).toVector, m)
+    val z = rotate(shift(x, o).toVector, m.take(n))
 
     rastrigin(NonEmptyList.fromIterable(z.head, z.tail)) + bias
   }
@@ -240,10 +240,23 @@ object Benchmarks {
    * F11: Shifted Rotated Weierstrass Function
    * x ∈ [−0.5,0.5]D
    */
-  // def f11[N <: Nat, A: Field: Trig](x: Dimension[N, A])(implicit P: F11Params[N, A]): A =
-  //   P.params match {
-  //     case (o, m, fbias) => weierstrass(x.shift(o).rotate(m)) + fbias
-  //   }
+  def f11[A: Field: Trig](x: NonEmptyList[A]): A = {
+    // P.params match {
+    //   case (o, m, fbias) => weierstrass(x.shift(o).rotate(m)) + fbias
+    val n = x.size
+    val bias = 90.0
+    val o = Data.weierstrass_data
+
+    val m =
+      if (n <= 2) Data.weierstrass_M_D2
+      else if (n <= 10) Data.weierstrass_M_D10
+      else if (n <= 30) Data.weierstrass_M_D30
+      else Data.weierstrass_M_D50
+
+    val z = rotate(shift(x, o).toVector, m.take(n))
+
+    weierstrass(NonEmptyList.fromIterable(z.head, z.tail)) + bias
+  }
 
   /*
    * F12: Schwefel’s Problem 2.13

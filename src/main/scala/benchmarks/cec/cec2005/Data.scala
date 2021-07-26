@@ -122,5 +122,19 @@ object Data {
   lazy val rastrigin_M_D50: Matrix[Double] =
     parseResourceMatrix("cec2005/rastrigin_M_D50.txt")
 
+  lazy val weierstrass_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/weierstrass_data.txt")
+
+  lazy val weierstrass_M_D2: Matrix[Double] =
+    parseResourceMatrix("cec2005/weierstrass_M_D2.txt")
+
+  lazy val weierstrass_M_D10: Matrix[Double] =
+    parseResourceMatrix("cec2005/weierstrass_M_D10.txt")
+
+  lazy val weierstrass_M_D30: Matrix[Double] =
+    parseResourceMatrix("cec2005/weierstrass_M_D30.txt")
+
+  lazy val weierstrass_M_D50: Matrix[Double] =
+    parseResourceMatrix("cec2005/weierstrass_M_D50.txt")
 
 }
