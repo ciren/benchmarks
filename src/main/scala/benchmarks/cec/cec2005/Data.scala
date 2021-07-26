@@ -75,8 +75,21 @@ object Data {
     parseResourceMatrix("cec2005/schwefel_206_data.txt")
 
   lazy val rosenbrock_func_data: NonEmptyList[Double] =
-    parseResourceVector("cec2005/rosenbrock_func_data.txt") match {
-      case x +: xs => NonEmptyList.fromIterable(x, xs)
-    }
+    parseResourceNonEmptyList("cec2005/rosenbrock_func_data.txt")
+
+  lazy val griewank_func_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/griewank_func_data.txt")
+
+  lazy val griewank_M_D2: Matrix[Double] =
+    parseResourceMatrix("cec2005/griewank_M_D2.txt")
+
+  lazy val griewank_M_D10: Matrix[Double] =
+    parseResourceMatrix("cec2005/griewank_M_D10.txt")
+
+  lazy val griewank_M_D30: Matrix[Double] =
+    parseResourceMatrix("cec2005/griewank_M_D30.txt")
+
+  lazy val griewank_M_D50: Matrix[Double] =
+    parseResourceMatrix("cec2005/griewank_M_D50.txt")
 
 }

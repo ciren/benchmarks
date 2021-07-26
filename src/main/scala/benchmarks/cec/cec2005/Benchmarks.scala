@@ -123,18 +123,13 @@ object Benchmarks {
         else oi
     }
 
-    val a = transpose(Data.schwefel_206_data.tail.take(n)) // slow?
+    val a = transpose(Data.schwefel_206_data.tail.take(n)) // FIXME: this is slow?
 
     val b = rotate(o, a)
     val z = rotate(x.toVector, a)
 
     (z zip b).map { case (zi, bi) => abs(zi - bi) }.max + bias
   }
-
-
-  // val fbias =
-  //   NonEmptyList(-180, -140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
-
 
   /*
    * F6: Shifted Rosenbrock’s Function
@@ -155,10 +150,31 @@ object Benchmarks {
   /*
    * F7: Shifted Rotated Griewank’s Function without Bounds
    */
-  // def f7[N <: Nat, A: Field: NRoot: Trig](x: Dimension[N, A])(implicit P: F7Params[N, A]): A =
-  //   P.params match {
-  //     case (o, m, fbias) => griewank(x.shift(o).rotate(m)) + fbias
-  //   }
+  def f7[A: Field: NRoot: Trig](x: NonEmptyList[A]): A = {
+    // P.params match {
+    //   case (o, m, fbias) => griewank(x.shift(o).rotate(m)) + fbias
+    val bias = -180.0
+    val n = x.size
+    val o = NonEmptyList.fromIterable(
+      Data.griewank_func_data.head,
+      Data.griewank_func_data.tail.take(n-1))
+    val m =
+      if (n <= 2) Data.griewank_M_D2
+      else if (n <= 10) Data.griewank_M_D10
+      else if (n <= 30) Data.griewank_M_D30
+      else Data.griewank_M_D50
+
+    val s = shift(x, o)
+
+    //val z2 =
+    val z = rotate(s.toVector, m.take(n))
+
+    griewank(NonEmptyList.fromIterable(z.head, z.tail)) + bias
+  }
+
+  // val fbias =
+  //   NonEmptyList(-140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
+
 
   /*
    * F8: Shifted Rotated Ackley’s Function with Global Optimum on Bounds
