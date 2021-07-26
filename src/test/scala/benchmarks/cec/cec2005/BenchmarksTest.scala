@@ -209,7 +209,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
         validate(f8[Double], s30, bias, (-118.24337823113312, 10), point30) &&
         validate(f8[Double], s50, bias, (-118.34589514893673, 10), point50)
       }
-   }
+   },
 
 //   property("F9") = forAll(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -330.0 }
@@ -218,6 +218,17 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
 //     validate[_30](f9, s30, (9284.964421232971,   20)) &&
 //     validate[_50](f9, s50, (43417.685263889995,  20))
 //   }
+    testM("F9") {
+      val bias = -330.0
+
+      check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
+        validate(f9[Double], s2,  bias, (-298.72809507082457, 20), point2) &&
+        validate(f9[Double], s10, bias, (229.3569160579391,   20), point10) &&
+        validate(f9[Double], s30, bias, (9284.964421232971,   20), point30) &&
+        validate(f9[Double], s50, bias, (43417.685263889995,  20), point50)
+      }
+    }
+
 
 //   property("F10") = forAll(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -330.0 }

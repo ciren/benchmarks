@@ -107,4 +107,7 @@ object Data {
   lazy val ackley_M_D50: Matrix[Double] =
     parseResourceMatrix("cec2005/ackley_M_D50.txt")
 
+  lazy val rastrigin_func_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/rastrigin_func_data.txt")
+
 }

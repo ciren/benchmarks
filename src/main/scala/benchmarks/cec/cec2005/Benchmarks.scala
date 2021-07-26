@@ -206,10 +206,12 @@ object Benchmarks {
    * F9: Shifted Rastrigin’s Function
    * x ∈ [−5,5]D
    */
-  // def f9[N <: Nat, A: Field: Trig](x: Dimension[N, A])(implicit P: F9Params[N, A]): A =
-  //   P.params match {
-  //     case (o, fbias) => rastrigin(x shift o) + fbias
-  //   }
+  def f9[A: Field: Trig](x: NonEmptyList[A]): A = {
+    val bias = -330.0
+    val o = Data.rastrigin_func_data
+
+    rastrigin(shift(x, o)) + bias
+  }
 
   /*
    * F10: Shifted Rotated Rastrigin’s Function
