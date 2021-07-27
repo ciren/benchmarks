@@ -137,4 +137,10 @@ object Data {
   lazy val weierstrass_M_D50: Matrix[Double] =
     parseResourceMatrix("cec2005/weierstrass_M_D50.txt")
 
+  lazy val schwefel_213_data: Matrix[Double] =
+    parseResourceMatrix("cec2005/schwefel_213_data.txt")
+
+  lazy val EF8F2_func_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/EF8F2_func_data.txt")
+
 }

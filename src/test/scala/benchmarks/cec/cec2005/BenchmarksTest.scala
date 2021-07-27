@@ -4,7 +4,7 @@ package cec2005
 
 import zio.prelude._
 import zio.test._
-import spire.math.{abs}
+import spire.math.{abs, pi}
 import spire.implicits._
 
 import cilib.{RVar, RNG}
@@ -184,24 +184,29 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
         validate(f11[Double], s30, bias, (141.67918424338953, 7), point30) &&
         validate(f11[Double], s50, bias, (194.75188189582158, 7), point50)
       }
-    }
+    },
 
+    testM("F12") {
+      val bias = -460.0
+      check(genCECSized(-pi, pi)) { case (s2, s10, s30, s50) =>
+        validate(f12[Double], s2,  bias, (-58.812048337208671,   1), point2) &&
+        validate(f12[Double], s10, bias, (415454.122431980236,   0), point10) &&
+        validate(f12[Double], s30, bias, (1697136.1208056952,   20), point30) &&
+        validate(f12[Double], s50, bias, (1.0964401544490915E7, 20), point50)
+      }
+    },
 
-//   property("F12") = forAll(genCECSized(-pi, pi)) { case (s2, s10, s30, s50) =>
-//     implicit val fbias = new FBias { val fbias = -460.0 }
-//     validate[_2] (f12, s2,  (-58.812048337208671,   1)) &&
-//     validate[_10](f12, s10, (415454.122431980236,   0)) &&
-//     validate[_30](f12, s30, (1697136.1208056952,   20)) &&
-//     validate[_50](f12, s50, (1.0964401544490915E7, 20))
-//   }
+    testM("F13") {
+      val bias = -130.0
+      val f: NonEmptyList[Double] => Double = x => f13(toAtLeast2List(x))
 
-//   property("F13") = forAll(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
-//     implicit val fbias = new FBias { val fbias = -130.0 }
-//     validate[_2] (f13, s2,  (7316.601742858467,   10)) &&
-//     validate[_10](f13, s10, (4.915053571899814E8, 20)) &&
-//     validate[_30](f13, s30, (5.486102447250848E12, 3)) &&
-//     validate[_50](f13, s50, (5.599844313220846E14, 1))
-//   }
+      check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
+        validate(f, s2,  bias, (7316.601742858467,   10), point2) &&
+        validate(f, s10, bias, (4.915053571899814E8, 20), point10) &&
+        validate(f, s30, bias, (5.486102447250848E12, 3), point30) &&
+        validate(f, s50, bias, (5.599844313220846E14, 1), point50)
+      }
+  }
 
 //   property("F14") = forAll(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
 //     implicit val fbias = new FBias { val fbias = -300.0 }

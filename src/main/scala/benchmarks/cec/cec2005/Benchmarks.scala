@@ -168,10 +168,6 @@ object Benchmarks {
     griewank(NonEmptyList.fromIterable(z.head, z.tail)) + bias
   }
 
-  // val fbias =
-  //   NonEmptyList(-140, -330, -330, 90, -460, -130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
-
-
   /*
    * F8: Shifted Rotated Ackley’s Function with Global Optimum on Bounds
    * x ∈ [−32,32]D
@@ -265,47 +261,63 @@ object Benchmarks {
    * Note: the algorithm has been modified to avoid col/row indexing.
    * 'a' and 'b' must be row-major matrices.
    */
-  // def f12[N <: Nat, A: Field: Trig](x: Dimension[N, A])(implicit P: F12Params[N, A]): A =
-  //   P.params match {
-  //     case (alpha, a, b, fbias) => {
-  //       val A = (a zip b) map {
-  //         case (ac, bc) =>
-  //           (alpha zip ac zip bc) mapSum {
-  //             case ((ai, aci), bci) =>
-  //               aci * sin(ai) + bci * cos(ai)
-  //           }
-  //       }
+  def f12[A: Field: Trig](x: NonEmptyList[A]): A = {
+    val n = x.size
+    val bias = -460.0
+    val alpha = Data.schwefel_213_data.last.take(n)
+    val a = Data.schwefel_213_data.take(100).map(_.take(n))
+    val b = Data.schwefel_213_data.drop(100).take(100).map(_.take(n))
 
-  //       val B = (a zip b) map {
-  //         case (ac, bc) =>
-  //           (x zip ac zip bc) mapSum {
-  //             case ((xi, aci), bci) =>
-  //               aci * sin(xi) + bci * cos(xi)
-  //           }
-  //       }
+    println(s"sizes: n: ${n} alpha ${alpha.size}, a: ${a.head.size}, b: ${b.head.size}")
 
-  //       val result = (A zip B) mapSum { case (axi, bxi) => (axi - bxi) ** 2 }
+    val A = a.zip(b).map {
+      case (ac, bc) =>
+        mapSum(alpha.zip(ac).zip(bc)) {
+          case ((ai, aci), bci) =>
+            aci * sin(ai) + bci * cos(ai)
+        }
+    }
 
-  //       result + fbias
-  //     }
-  //   }
+    val B = a.zip(b).map {
+      case (ac, bc) =>
+        mapSum(x.toVector zip ac zip bc)  {
+          case ((xi, aci), bci) =>
+            aci * sin(xi) + bci * cos(xi)
+        }
+    }
+
+    val result = mapSum(A zip B) { case (axi, bxi) => (axi - bxi) ** 2 }
+
+    result + bias
+  }
+
+  // val fbias =
+  //   NonEmptyList(-130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
 
   /*
    * F13: Shifted Expanded Griewank’s plus Rosenbrock’s Function (F8F2)
    * x ∈ [−5,5]D
    */
-  // def f13[N <: Nat: GTEq2: HasHead, A: Field: NRoot: Trig](x: Dimension[N, A])(implicit P: F13Params[N, A]): A =
-  //   P.params match {
-  //     case (o, fbias) => {
-  //       val z     = x.shift(o) map { _ + 1.0 }
-  //       val pairs = (z.toList :+ z.head).pairs.map { case (a, b) => Sized(a, b) }
+  def f13[A: Field: NRoot: Trig](x: AtLeast2List[A]): A = {
+    val bias = -130.0
+    val o = Data.EF8F2_func_data
 
-  //       val result = pairs mapSum { pair =>
-  //         griewank(Sized(rosenbrock(pair)))
-  //       }
-  //       result + fbias
-  //     }
-  //   }
+    // P.params match {
+    //   case (o, fbias) => {
+    val z  = shift(AtLeast2List.unwrap(x), o).map { _ + 1.0 }
+    val ps = pairs(z.toList :+ z.head).map { case (a, b) =>
+      AtLeast2List.make(NonEmptyList(a, b)) match {
+        case ZValidation.Failure(_, e) => sys.error(e.toString())
+        case ZValidation.Success(_, a) => a
+      }
+    }
+
+    val result = mapSum(ps) { pair =>
+      griewank(NonEmptyList(rosenbrock(pair)))
+    }
+
+    result + bias
+  }
 
   /*
    * F14 Shifted Rotated Expanded Scaffer’s F6 Function

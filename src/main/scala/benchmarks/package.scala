@@ -1,3 +1,6 @@
+import zio.prelude._
+import zio.test.Assertion
+import zio.test.AssertionM.Render.param
 import cilib.Input
 
 package object benchmarks {
@@ -10,10 +13,6 @@ package object benchmarks {
   //       else Sized.wrap[IndexedSeq[B], N](a.toVector)
   //     }
   //   }
-
-  import zio.prelude._
-  import zio.test.Assertion
-  import zio.test.AssertionM.Render.param
 
   def isLongerThan(reference: Int): AssertionF[NonEmptyList] =
     new AssertionF[NonEmptyList] {
@@ -35,7 +34,6 @@ package object benchmarks {
           case ZValidation.Success(w, a) => a
         }
     }
-
 
 
   implicit val Tuple3ToInput: Input[({ type lambda[A] = (A, A, A) })#lambda] =
