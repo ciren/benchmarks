@@ -143,4 +143,19 @@ object Data {
   lazy val EF8F2_func_data: NonEmptyList[Double] =
     parseResourceNonEmptyList("cec2005/EF8F2_func_data.txt")
 
+  lazy val scafferF6_func_data: NonEmptyList[Double] =
+    parseResourceNonEmptyList("cec2005/E_ScafferF6_func_data.txt")
+
+  lazy val scafferF6_M_D2: Matrix[Double] =
+    parseResourceMatrix("cec2005/E_ScafferF6_M_D2.txt")
+
+  lazy val scafferF6_M_D10: Matrix[Double] =
+    parseResourceMatrix("cec2005/E_ScafferF6_M_D10.txt")
+
+  lazy val scafferF6_M_D30: Matrix[Double] =
+    parseResourceMatrix("cec2005/E_ScafferF6_M_D30.txt")
+
+  lazy val scafferF6_M_D50: Matrix[Double] =
+    parseResourceMatrix("cec2005/E_ScafferF6_M_D50.txt")
+
 }

@@ -323,12 +323,35 @@ object Benchmarks {
    * F14 Shifted Rotated Expanded Scaffer’s F6 Function
    * x ∈ [−100,100]D
    */
-  // def f14[N <: Nat: GTEq2: HasHead, A: Field: NRoot: Trig](x: Dimension[N, A])(implicit P: F14Params[N, A]): A =
-  //   P.params match {
-  //     case (o, m, fbias) =>
-  //       val z = x.shift(o).rotate(m)
-  //       (z.toList :+ z.head).pairs.mapSum { case (a, b) => schaffer6(Sized(a, b)) } + fbias
-  //   }
+  def f14[A: Field: NRoot: Trig](x: AtLeast2List[A]): A = {
+    // P.params match {
+    //   case (o, m, fbias) =>
+    //     val z = x.shift(o).rotate(m)
+    //     (z.toList :+ z.head).pairs.mapSum { case (a, b) => schaffer6(Sized(a, b)) } + fbias
+    // }
+    val bias = -300.0
+    val n = AtLeast2List.unwrap(x).size
+    val o = Data.scafferF6_func_data
+
+    val m =
+      if (n <= 2) Data.scafferF6_M_D2
+      else if (n <= 10) Data.scafferF6_M_D10
+      else if (n <= 30) Data.scafferF6_M_D30
+      else Data.scafferF6_M_D50
+
+    val z = rotate(shift(AtLeast2List.unwrap(x), o).toVector, m)
+
+    val result = mapSum(pairs(z.toList :+ z.head)) { case (a, b) =>
+      val list = AtLeast2List.make(NonEmptyList(a, b)) match {
+        case ZValidation.Failure(_, e) => sys.error(e.toString())
+        case ZValidation.Success(_, a) => a
+      }
+
+      schaffer6(list)
+    }
+
+    result + bias
+  }
 
   /*
    * F15 Hybrid Composition Function
