@@ -3,10 +3,6 @@
 
 // import dimension._
 // import dimension.implicits._
-// import shapeless._
-// import spire.algebra.{ Field, NRoot, Order, Signed, Trig }
-// import spire.implicits._
-// import spire.math.{ abs, exp, log, sin, sqrt }
 
 // object Helpers {
 

@@ -6,8 +6,6 @@
 // import org.scalacheck._
 // import org.scalacheck.Prop._
 
-// import spire.implicits._
-
 // import benchmarks.dimension.Generators._
 // import benchmarks.implicits._
 // import Benchmarks._

@@ -7,10 +7,6 @@
 // import benchmarks.dimension.implicits._
 // import benchmarks.matrix._
 // import benchmarks.matrix.implicits._
-// import shapeless._
-// import shapeless.ops.nat.ToInt
-// import spire.implicits._
-// import spire.math.{ ceil, floor }
 
 // import cilib.{ Dist, RVar }
 

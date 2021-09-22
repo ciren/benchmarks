@@ -4,9 +4,6 @@
 // import org.scalacheck._
 // import org.scalacheck.Prop._
 
-// import shapeless._
-// import spire.implicits._
-
 // import benchmarks.dimension._
 // import benchmarks.matrix._
 // import benchmarks.implicits._

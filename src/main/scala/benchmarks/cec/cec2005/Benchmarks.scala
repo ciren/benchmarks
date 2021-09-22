@@ -7,11 +7,10 @@ import benchmarks.matrix._
 
 import zio.prelude.{NonEmptyList, ZValidation}
 import benchmarks.Benchmarks._
-import spire.algebra._
-import spire.implicits._
-import spire.math.{ abs, cos, round, sin, ceil, floor }
+import scala.math._
 
 import cilib.{RVar, Dist}
+import cilib.NonEmptyVector
 
 /*
  * Based on: Problem Definitions and Evaluation Criteria for the CEC 2005
@@ -22,18 +21,18 @@ import cilib.{RVar, Dist}
  */
 object Benchmarks {
 
-  def shift[A:Field](x: NonEmptyList[A], o: NonEmptyList[Double]): NonEmptyList[A] =
-    x.zipWith(o)(_ - _)
+  def shift(x: NonEmptyVector[Double], o: NonEmptyList[Double]): NonEmptyList[Double] =
+    NonEmptyList.fromIterableOption(x.toChunk).get.zipWith(o)(_ - _)
 
   // matrix transpose
   def transpose(matrix: Matrix[Double]) =
     Matrix.wrap(matrix.transpose: _*)
 
-  def rotate[A:Field](x: Vector[A], m: Matrix[Double]): Vector[A] = {
-    def innerProduct(other: Vector[Double])(implicit ev: Ring[A]): A =
+  def rotate(x: Vector[Double], m: Matrix[Double]): Vector[Double] = {
+    def innerProduct(other: Vector[Double]): Double =
       x.zip(other)
         .map { case (xi, oi) => xi * oi }
-        .foldLeft(ev.zero)(_ + _)
+        .foldLeft(0.0)(_ + _)
 
     transpose(m).map(z => innerProduct(z))
   }
@@ -42,7 +41,7 @@ object Benchmarks {
    * F1: Shifted Sphere Function
    * x ∈ [-100, 100]D
    */
-  def f1[A: Ring: Field](x: NonEmptyList[A]): A = {
+  def f1(x: NonEmptyVector[Double]): Double = {
     val bias = -450
     val shifted = shift(x, Data.sphere_func_data)
 
@@ -53,7 +52,7 @@ object Benchmarks {
    * F2: Shifted Schwefel’s Problem 1.2
    * x ∈ [-100, 100]D
    */
-  def f2[A: Ring: Field](x: NonEmptyList[A]): A = {
+  def f2(x: NonEmptyVector[Double]): Double = {
     val bias = -450
     val shifted = shift(x, Data.schwefel_102_data)
 
@@ -64,7 +63,7 @@ object Benchmarks {
    * F3: Shifted Rotated High Conditioned Elliptic Function
    * x ∈ [-100, 100]D
    */
-  def f3[A: Ring: Field](x: AtLeast2List[A]): A = {
+  def f3(x: AtLeast2List[Double]): Double = {
     val list = AtLeast2List.unwrap(x)
     val n = list.length
     val bias = -450
@@ -80,7 +79,7 @@ object Benchmarks {
     val z = shift(list, o)
     val rotated = rotate(z.toVector, m) match {
       case x +: xs =>
-        AtLeast2List.make(NonEmptyList.fromIterable(x, xs)) match {
+        AtLeast2List.make(NonEmptyVector.fromIterable(x, xs)) match {
           case ZValidation.Success(_, v) => v
           case ZValidation.Failure(_, e) => sys.error(e.toString())
         }
@@ -93,11 +92,11 @@ object Benchmarks {
    * F4: Shifted Schwefel’s Problem 1.2 with Noise in Fitness
    * x ∈ [-100, 100]D
    */
-  def f4[A: Field: Signed](x: NonEmptyList[A]): RVar[A] = {
+  def f4(x: NonEmptyVector[Double]): RVar[Double] = {
     f4Noise(x, Dist.stdNormal)
   }
 
-  def f4Noise[A: Field: Signed](x: NonEmptyList[A], noise: RVar[Double]): RVar[A] = {
+  def f4Noise(x: NonEmptyVector[Double], noise: RVar[Double]): RVar[Double] = {
     val bias = -450
     val o = Data.schwefel_102_data
     val z = shift(x, o)
@@ -111,9 +110,9 @@ object Benchmarks {
    * F5: Schwefel’s Problem 2.6 with Global Optimum on Bounds
    * x ∈ [−100,100]D
    */
-  def f5[A: Field: Signed: Ordering](x: NonEmptyList[A]): A = {
+  def f5(x: NonEmptyVector[Double]): Double = {
     val bias = -310
-    val n = x.size
+    val n = x.length
 
     val shift = Data.schwefel_206_data.head.take(n)
     val o = shift.zipWithIndex map {
@@ -126,7 +125,7 @@ object Benchmarks {
     val a = transpose(Data.schwefel_206_data.tail.take(n)) // FIXME: this is slow?
 
     val b = rotate(o, a)
-    val z = rotate(x.toVector, a)
+    val z = rotate(x.toChunk.toVector, a)
 
     (z zip b).map { case (zi, bi) => abs(zi - bi) }.max + bias
   }
@@ -135,10 +134,11 @@ object Benchmarks {
    * F6: Shifted Rosenbrock’s Function
    * x ∈ [−100,100]D
    */
-  def f6[A: Field](x: AtLeast2List[A]): A = {
+  def f6(x: AtLeast2List[Double]): Double = {
     val bias = 390
     val o = Data.rosenbrock_func_data
-    val n = shift(AtLeast2List.unwrap(x), o).map(_ + 1.0)
+    val nel = AtLeast2List.unwrap(x)
+    val n = NonEmptyVector.fromIterableOption(shift(nel, o).map(_ + 1.0)).get
     val z = AtLeast2List.make(n) match {
       case ZValidation.Success(_, v) => v
       case ZValidation.Failure(_, e) => sys.error(e.toString())
@@ -150,9 +150,9 @@ object Benchmarks {
   /*
    * F7: Shifted Rotated Griewank’s Function without Bounds
    */
-  def f7[A: Field: NRoot: Trig](x: NonEmptyList[A]): A = {
+  def f7(x: NonEmptyVector[Double]): Double = {
     val bias = -180.0
-    val n = x.size
+    val n = x.length
     val o = NonEmptyList.fromIterable(
       Data.griewank_func_data.head,
       Data.griewank_func_data.tail.take(n-1))
@@ -172,13 +172,13 @@ object Benchmarks {
    * F8: Shifted Rotated Ackley’s Function with Global Optimum on Bounds
    * x ∈ [−32,32]D
    */
-  def f8[A: Field: NRoot: Trig](x: NonEmptyList[A]): A = {
+  def f8(x: NonEmptyVector[Double]): Double = {
     // P.params match {
     //   case (o, m, fbias) => ackley(x.shift(o).rotate(m)) + fbias
     // }
 
     val bias = -140.0
-    val n = x.size
+    val n = x.length
     val o = NonEmptyList.fromIterable(
       Data.ackley_func_data.head,
       Data.ackley_func_data.tail.take(n-1)
@@ -202,7 +202,7 @@ object Benchmarks {
    * F9: Shifted Rastrigin’s Function
    * x ∈ [−5,5]D
    */
-  def f9[A: Field: Trig](x: NonEmptyList[A]): A = {
+  def f9(x: NonEmptyVector[Double]): Double = {
     val bias = -330.0
     val o = Data.rastrigin_func_data
 
@@ -213,11 +213,11 @@ object Benchmarks {
    * F10: Shifted Rotated Rastrigin’s Function
    * x ∈ [−5,5]D
    */
-  def f10[A: Field: Trig](x: NonEmptyList[A]): A = {
+  def f10(x: NonEmptyVector[Double]): Double = {
     // P.params match {
     //   case (o, m, fbias) => rastrigin(x.shift(o).rotate(m)) + fbias
     // }
-    val n = x.size
+    val n = x.length
     val bias = -330.0
     val o = Data.rastrigin_func_data
 
@@ -236,10 +236,10 @@ object Benchmarks {
    * F11: Shifted Rotated Weierstrass Function
    * x ∈ [−0.5,0.5]D
    */
-  def f11[A: Field: Trig](x: NonEmptyList[A]): A = {
+  def f11(x: NonEmptyVector[Double]): Double = {
     // P.params match {
     //   case (o, m, fbias) => weierstrass(x.shift(o).rotate(m)) + fbias
-    val n = x.size
+    val n = x.length
     val bias = 90.0
     val o = Data.weierstrass_data
 
@@ -261,14 +261,14 @@ object Benchmarks {
    * Note: the algorithm has been modified to avoid col/row indexing.
    * 'a' and 'b' must be row-major matrices.
    */
-  def f12[A: Field: Trig](x: NonEmptyList[A]): A = {
-    val n = x.size
+  def f12(x: NonEmptyVector[Double]): Double = {
+    val n = x.length
     val bias = -460.0
     val alpha = Data.schwefel_213_data.last.take(n)
     val a = Data.schwefel_213_data.take(100).map(_.take(n))
     val b = Data.schwefel_213_data.drop(100).take(100).map(_.take(n))
 
-    println(s"sizes: n: ${n} alpha ${alpha.size}, a: ${a.head.size}, b: ${b.head.size}")
+    //println(s"sizes: n: ${n} alpha ${alpha.size}, a: ${a.head.size}, b: ${b.head.size}")
 
     val A = a.zip(b).map {
       case (ac, bc) =>
@@ -280,25 +280,25 @@ object Benchmarks {
 
     val B = a.zip(b).map {
       case (ac, bc) =>
-        mapSum(x.toVector zip ac zip bc)  {
+        mapSum(x.toChunk.toVector zip ac zip bc)  {
           case ((xi, aci), bci) =>
             aci * sin(xi) + bci * cos(xi)
         }
     }
 
-    val result = mapSum(A zip B) { case (axi, bxi) => (axi - bxi) ** 2 }
+    val result = mapSum(A zip B) { case (axi, bxi) => (axi - bxi) * (axi - bxi) }
 
     result + bias
   }
 
   // val fbias =
-  //   NonEmptyList(-130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
+  //   NonEmptyVector(-130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
 
   /*
    * F13: Shifted Expanded Griewank’s plus Rosenbrock’s Function (F8F2)
    * x ∈ [−5,5]D
    */
-  def f13[A: Field: NRoot: Trig](x: AtLeast2List[A]): A = {
+  def f13(x: AtLeast2List[Double]): Double = {
     val bias = -130.0
     val o = Data.EF8F2_func_data
 
@@ -306,7 +306,7 @@ object Benchmarks {
     //   case (o, fbias) => {
     val z  = shift(AtLeast2List.unwrap(x), o).map { _ + 1.0 }
     val ps = pairs(z.toList :+ z.head).map { case (a, b) =>
-      AtLeast2List.make(NonEmptyList(a, b)) match {
+      AtLeast2List.make(NonEmptyVector(a, b)) match {
         case ZValidation.Failure(_, e) => sys.error(e.toString())
         case ZValidation.Success(_, a) => a
       }
@@ -323,14 +323,14 @@ object Benchmarks {
    * F14 Shifted Rotated Expanded Scaffer’s F6 Function
    * x ∈ [−100,100]D
    */
-  def f14[A: Field: NRoot: Trig](x: AtLeast2List[A]): A = {
+  def f14(x: AtLeast2List[Double]): Double = {
     // P.params match {
     //   case (o, m, fbias) =>
     //     val z = x.shift(o).rotate(m)
     //     (z.toList :+ z.head).pairs.mapSum { case (a, b) => schaffer6(Sized(a, b)) } + fbias
     // }
     val bias = -300.0
-    val n = AtLeast2List.unwrap(x).size
+    val n = AtLeast2List.unwrap(x).length
     val o = Data.scafferF6_func_data
 
     val m =
@@ -342,7 +342,7 @@ object Benchmarks {
     val z = rotate(shift(AtLeast2List.unwrap(x), o).toVector, m)
 
     val result = mapSum(pairs(z.toList :+ z.head)) { case (a, b) =>
-      val list = AtLeast2List.make(NonEmptyList(a, b)) match {
+      val list = AtLeast2List.make(NonEmptyVector(a, b)) match {
         case ZValidation.Failure(_, e) => sys.error(e.toString())
         case ZValidation.Success(_, a) => a
       }

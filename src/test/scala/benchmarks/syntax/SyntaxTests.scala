@@ -4,8 +4,6 @@
 // import org.scalacheck._
 // import org.scalacheck.Prop._
 
-// import spire.implicits._
-
 // import benchmarks.implicits._
 
 // object SyntaxTests extends Properties("Syntax Tests") {

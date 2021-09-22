@@ -6,8 +6,6 @@
 // import org.scalacheck.Prop._
 
 // import shapeless._
-// import spire.implicits._
-// import spire.math.Interval
 
 // import cilib._
 

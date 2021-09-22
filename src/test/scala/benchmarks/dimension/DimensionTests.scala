@@ -5,7 +5,6 @@
 // import org.scalacheck.Prop.forAll
 
 // import shapeless._
-// import spire.implicits._
 
 // object DimensionTests extends Properties("Matrix Tests") {
 

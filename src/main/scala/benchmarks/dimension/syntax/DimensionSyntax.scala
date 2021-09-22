@@ -9,9 +9,6 @@
 // import matrix.implicits._
 // import scalaz._, Scalaz._
 // import shapeless._
-// import spire.algebra.{ Eq, Field, NRoot, Ring }
-// import spire.implicits._
-// import spire.math.Interval
 
 // import cilib._
 

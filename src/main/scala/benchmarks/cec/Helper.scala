@@ -9,9 +9,6 @@
 // import scalaz.Scalaz._
 // import shapeless._
 // import shapeless.ops.nat._
-// import spire.algebra._
-// import spire.implicits._
-// import spire.math._
 
 // import cilib._
 

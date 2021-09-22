@@ -2,8 +2,6 @@
 
 [![codecov.io](https://codecov.io/github/cirg-up/benchmarks/coverage.svg?branch=master)](https://codecov.io/github/cirg-up/benchmarks?branch=master)
 
-A collection of *n*-dimensional benchmark functions using [spire](https://github.com/non/spire)'s numeric types and [shapeless](https://github.com/milessabin/shapeless)'s `Sized` type.
-
 All functions have tests for both minimum values as well as known optima.
 
 Additionally, the CEC 2005 benchmark function set has been implemented in 2, 10, 30, and 50 dimensions from *Problem Definitions and Evaluation Criteria for the CEC 2005 Special Session on Real-Parameter Optimization (May 2005)* and tested against the [java implementation](http://web.mysites.ntu.edu.sg/epnsugan/PublicSite/Shared%20Documents/CEC2005/Java-ypchen-050309.zip).
@@ -25,7 +23,6 @@ Functions can be used with different numerical types:
 
 ```scala
 import shapeless._
-import spire.implicits._
 
 import benchmarks.Benchmarks._
 
@@ -40,10 +37,6 @@ ackley2(z)
 
 ### Jet (Forward AD)
 ```scala
-import shapeless._
-import spire.math._
-import spire.implicits._
-
 import benchmarks.Benchmarks._
 
 implicit val jd = JetDim(2)
@@ -62,9 +55,6 @@ ackley2(z)
 
 ### CEC 2005
 ```scala
-import shapeless._
-import spire.implicits._
-
 import benchmarks.cec2005.Benchmarks._
 import benchmarks.implicits._
 
@@ -76,8 +66,6 @@ f1(x)
 
 ### CILib compatibility
 ```scala
-import shapeless._
-import spire.implicits._
 import cilib._
 
 import benchmarks.Benchmarks

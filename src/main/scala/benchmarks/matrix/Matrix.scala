@@ -1,10 +1,6 @@
 package benchmarks
 package matrix
 
-import spire.algebra._
-import spire.implicits._
-
-
 object Matrix {
 
   def wrap[A](cols: IndexedSeq[A]*): Matrix[A] =

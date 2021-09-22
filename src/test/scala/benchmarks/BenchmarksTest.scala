@@ -3,9 +3,6 @@ package benchmarks
 import zio.prelude._
 import zio.test._
 
-import spire.implicits._
-//import spire.math._
-
 import Benchmarks._
 import Generators._
 
@@ -32,6 +29,7 @@ object BenchmarkTests extends DefaultRunnableSpec {
         assert(abs)(Assertion.isGreaterThanEqualTo(mapSum(xs)(xi => xi)))
       }
     },
+
     test("absoluteValue units") {
       assert(absoluteValue(zero3))(Assertion.equalTo(0.0)) &&
       assert(absoluteValue(NonEmptyList(1.0, 2.0, 3.0)))(Assertion.equalTo(6.0)) &&
