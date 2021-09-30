@@ -24,17 +24,13 @@ object Benchmarks {
   def shift(x: NonEmptyVector[Double], o: NonEmptyList[Double]): NonEmptyList[Double] =
     NonEmptyList.fromIterableOption(x.toChunk).get.zipWith(o)(_ - _)
 
-  // matrix transpose
-  def transpose(matrix: Matrix[Double]) =
-    Matrix.wrap(matrix.transpose: _*)
-
   def rotate(x: Vector[Double], m: Matrix[Double]): Vector[Double] = {
     def innerProduct(other: Vector[Double]): Double =
       x.zip(other)
         .map { case (xi, oi) => xi * oi }
         .foldLeft(0.0)(_ + _)
 
-    transpose(m).map(z => innerProduct(z))
+    m.transpose.toVector.map(z => innerProduct(z))
   }
 
   /*
@@ -114,7 +110,9 @@ object Benchmarks {
     val bias = -310
     val n = x.length
 
-    val shift = Data.schwefel_206_data.head.take(n)
+    val data = Data.schwefel_206_data.limit(n)
+    val shift = data.shift
+
     val o = shift.zipWithIndex map {
       case (oi, i) =>
         if ((i + 1) <= ceil(n / 4.0)) -100.0
@@ -122,7 +120,7 @@ object Benchmarks {
         else oi
     }
 
-    val a = transpose(Data.schwefel_206_data.tail.take(n)) // FIXME: this is slow?
+    val a = data.matrixA.transpose.mapRow(_.take(n))
 
     val b = rotate(o, a)
     val z = rotate(x.toChunk.toVector, a)
@@ -163,7 +161,7 @@ object Benchmarks {
       else Data.griewank_M_D50
 
     val s = shift(x, o)
-    val z = rotate(s.toVector, m.take(n))
+    val z = rotate(s.toVector, m.mapRow(_.take(n)))
 
     griewank(NonEmptyList.fromIterable(z.head, z.tail)) + bias
   }
@@ -193,7 +191,7 @@ object Benchmarks {
       else Data.ackley_M_D50
 
     val s = shift(x, o)
-    val z = rotate(s.toVector, m.take(n))
+    val z = rotate(s.toVector, m.mapRow(_.take(n)))
 
     ackley(NonEmptyList.fromIterableOption(z).get) + bias
   }
@@ -204,7 +202,10 @@ object Benchmarks {
    */
   def f9(x: NonEmptyVector[Double]): Double = {
     val bias = -330.0
-    val o = Data.rastrigin_func_data
+    val o = NonEmptyList.fromIterable(
+      Data.rastrigin_func_data.head,
+      Data.rastrigin_func_data.tail.take(x.length-1)
+    )
 
     rastrigin(shift(x, o)) + bias
   }
@@ -227,7 +228,7 @@ object Benchmarks {
       else if (n <= 30) Data.rastrigin_M_D30
       else Data.rastrigin_M_D50
 
-    val z = rotate(shift(x, o).toVector, m.take(n))
+    val z = rotate(shift(x, o).toVector, m.mapRow(_.take(n)))
 
     rastrigin(NonEmptyList.fromIterable(z.head, z.tail)) + bias
   }
@@ -249,7 +250,7 @@ object Benchmarks {
       else if (n <= 30) Data.weierstrass_M_D30
       else Data.weierstrass_M_D50
 
-    val z = rotate(shift(x, o).toVector, m.take(n))
+    val z = rotate(shift(x, o).toVector, m.mapRow(_.take(n)))
 
     weierstrass(NonEmptyList.fromIterable(z.head, z.tail)) + bias
   }
@@ -264,11 +265,11 @@ object Benchmarks {
   def f12(x: NonEmptyVector[Double]): Double = {
     val n = x.length
     val bias = -460.0
-    val alpha = Data.schwefel_213_data.last.take(n)
-    val a = Data.schwefel_213_data.take(100).map(_.take(n))
-    val b = Data.schwefel_213_data.drop(100).take(100).map(_.take(n))
 
-    //println(s"sizes: n: ${n} alpha ${alpha.size}, a: ${a.head.size}, b: ${b.head.size}")
+    val data = Data.schwefel_213_data.limit(n)
+    val a = data.matrixA.toVector
+    val b = data.matrixB.toVector
+    val alpha = data.alpha
 
     val A = a.zip(b).map {
       case (ac, bc) =>
@@ -290,9 +291,6 @@ object Benchmarks {
 
     result + bias
   }
-
-  // val fbias =
-  //   NonEmptyVector(-130, -300, 120, 120, 120, 10, 10, 10, 360, 360, 360, 260, 260)
 
   /*
    * F13: Shifted Expanded Griewank’s plus Rosenbrock’s Function (F8F2)
