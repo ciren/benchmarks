@@ -25,9 +25,9 @@ final case class Schwefel206Data(shift: Vector[Double], matrixA: Matrix[Double])
     Schwefel206Data(shift.take(n), matrixA.mapRow(_.take(n)))
 }
 
-final case class Hybrid1Data(shiftVectors: NonEmptyVector[NonEmptyVector[Double]]) extends DataSource {
+final case class HybridData(shiftVectors: NonEmptyVector[NonEmptyVector[Double]]) extends DataSource {
   def limit(n: Int) =
-    Hybrid1Data(shiftVectors.map(vector => NonEmptyVector.fromChunk(vector.toChunk.take(n)).get))
+    HybridData(shiftVectors.map(vector => NonEmptyVector.fromChunk(vector.toChunk.take(n)).get))
 }
 
 
@@ -202,27 +202,226 @@ object Data {
   lazy val scafferF6_M_D50: Matrix[Double] =
     parseResourceMatrix(50, 50, "cec2005/E_ScafferF6_M_D50.txt")
 
-  lazy val hybrid_func1_data: Hybrid1Data = {
+  lazy val hybrid_func1_data: HybridData = {
     val parser =
       many(Atto.count(100, doubleParser).map(x => NonEmptyVector.fromIterableOption(x).get))
-        .map(list => Hybrid1Data(NonEmptyVector.fromIterableOption(list).get))
+        .map(list => HybridData(NonEmptyVector.fromIterableOption(list).get))
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_data.txt", parser)
 
     Runtime.default.unsafeRunTask(effect)
   }
 
-  lazy val hybrid_func1_M_D2: Matrix[Double] =
-    parseResourceMatrix(2, 2, "cec2005/hybrid_func1_M_D2.txt")
+  lazy val hybrid_func1_M_D2: NonEmptyVector[Matrix[Double]] = {
+    val dim = 2
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
 
-  lazy val hybrid_func1_M_D10: Matrix[Double] =
-    parseResourceMatrix(10, 10, "cec2005/hybrid_func1_M_D10.txt")
+    val effect = fromResourceEffect("cec2005/hybrid_func1_M_D2.txt", parser)
 
-  lazy val hybrid_func1_M_D30: Matrix[Double] =
-    parseResourceMatrix(30, 30, "cec2005/hybrid_func1_M_D30.txt")
+    Runtime.default.unsafeRunTask(effect)
+  }
 
-  lazy val hybrid_func1_M_D50: Matrix[Double] =
-    parseResourceMatrix(50, 50, "cec2005/hybrid_func1_M_D50.txt")
+  lazy val hybrid_func1_M_D10: NonEmptyVector[Matrix[Double]] = {
+    val dim = 10
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func1_M_D10.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func1_M_D30: NonEmptyVector[Matrix[Double]] = {
+    val dim = 30
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func1_M_D30.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func1_M_D50: NonEmptyVector[Matrix[Double]] = {
+    val dim = 50
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func1_M_D50.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+
+  lazy val hybrid_func2_data: HybridData = {
+    val parser =
+      many(Atto.count(100, doubleParser).map(x => NonEmptyVector.fromIterableOption(x).get))
+        .map(list => HybridData(NonEmptyVector.fromIterableOption(list).get))
+
+    val effect = fromResourceEffect("cec2005/hybrid_func2_data.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func2_M_D2: NonEmptyVector[Matrix[Double]] = {
+    val dim = 2
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func2_M_D2.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func2_M_D10: NonEmptyVector[Matrix[Double]] = {
+    val dim = 10
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func2_M_D10.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func2_M_D30: NonEmptyVector[Matrix[Double]] = {
+    val dim = 30
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func2_M_D30.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func2_M_D50: NonEmptyVector[Matrix[Double]] = {
+    val dim = 50
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func2_M_D50.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+
+  lazy val hybrid_func3_data: HybridData = {
+    val parser =
+      many(Atto.count(100, doubleParser).map(x => NonEmptyVector.fromIterableOption(x).get))
+        .map(list => HybridData(NonEmptyVector.fromIterableOption(list).get))
+
+    val effect = fromResourceEffect("cec2005/hybrid_func3_data.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func3_M_D2: NonEmptyVector[Matrix[Double]] = {
+    val dim = 2
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func3_M_D2.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func3_M_D10: NonEmptyVector[Matrix[Double]] = {
+    val dim = 10
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func3_M_D10.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func3_M_D30: NonEmptyVector[Matrix[Double]] = {
+    val dim = 30
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func3_M_D30.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func3_M_D50: NonEmptyVector[Matrix[Double]] = {
+    val dim = 50
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func3_M_D50.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+
+
+  lazy val hybrid_func4_data: HybridData = {
+    val parser =
+      many(Atto.count(100, doubleParser).map(x => NonEmptyVector.fromIterableOption(x).get))
+        .map(list => HybridData(NonEmptyVector.fromIterableOption(list).get))
+
+    val effect = fromResourceEffect("cec2005/hybrid_func4_data.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+
+  lazy val hybrid_func4_M_D2: NonEmptyVector[Matrix[Double]] = {
+    val dim = 2
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func4_M_D2.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func4_M_D10: NonEmptyVector[Matrix[Double]] = {
+    val dim = 10
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func4_M_D10.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func4_M_D30: NonEmptyVector[Matrix[Double]] = {
+    val dim = 30
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func4_M_D30.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
+
+  lazy val hybrid_func4_M_D50: NonEmptyVector[Matrix[Double]] = {
+    val dim = 50
+    val parser =
+      Atto.count(10, Atto.count(dim * dim, doubleParser).map(x => Matrix(dim, dim, x.toVector)))
+        .map(NonEmptyVector.fromIterableOption(_).get)
+
+    val effect = fromResourceEffect("cec2005/hybrid_func4_M_D50.txt", parser)
+
+    Runtime.default.unsafeRunTask(effect)
+  }
 
 
 }

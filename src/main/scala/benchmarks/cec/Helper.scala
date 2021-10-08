@@ -12,6 +12,7 @@ import benchmarks.matrix._
 // import shapeless.ops.nat._
 
 import cilib._
+import zio.prelude.NonEmptyForEach
 
 // case class Helper(prefix: String) {
 
@@ -156,57 +157,70 @@ object Helper {
     }
   }
 
-//   def hybridR[M <: Nat, N <: Nat: ToInt, A: Field: Ordering: Signed: Trig](
-//     b: Dimension[M, Double],
-//     o: Dimension[M, Dimension[N, A]],
-//     m: Dimension[M, Matrix[N, N, A]],
-//     f: Dimension[M, Dimension[N, A] => RVar[A]],
-//     λ: Dimension[M, Double],
-//     σ: Dimension[M, Double]
-//   ): Dimension[N, A] => RVar[A] = {
-//     val C = 2000.0
-//     val D = implicitly[ToInt[N]].apply
-//     val fmax: RVar[Dimension[M, A]] = (f zip λ zip m) traverse {
-//       case ((fi, λi), mi) =>
-//         val temp: Dimension[N, Double] = Sized.wrap(Vector.fill(D)(5.0 / λi))
-//         val point                      = temp.map(implicitly[Field[A]].fromDouble) rotate mi
-//         fi(point).map(abs(_))
-//     }
-//     x => {
-//       val zipped = fmax map { fMax =>
-//         (o zip m zip f zip λ zip σ zip b zip fMax) map {
-//           case ((((((oi, mi), fi), λi), σi), bi), fmaxi) =>
-//             val zi = x.shift(oi).map(_ / λi).rotate(mi)
-//             (oi, mi, fi, λi, σi, bi, fmaxi, zi)
-//         }
-//       }
-//       val weights = zipped map {
-//         _.map {
-//           case (oi, _, _, _, σi, _, _, zi) =>
-//             val denom = (x zip oi) mapSum { case (xk, oik) => (xk - oik) ** 2 }
-//             exp(-denom / (2.0 * zi.size * σi * σi))
-//         }
-//       }
+  def hybridR(
+    b: NonEmptyVector[Double],
+    o: NonEmptyVector[NonEmptyVector[Double]],
+    m: NonEmptyVector[Matrix[Double]],
+    f: NonEmptyVector[NonEmptyVector[Double] => RVar[Double]],
+    λ: NonEmptyVector[Double],
+    σ: NonEmptyVector[Double]
+  ): NonEmptyVector[Double] => RVar[Double] = {
+    val C = 2000.0
+    x => {
+      val D = x.length
+      val fmax: RVar[NonEmptyVector[Double]] =
+        NonEmptyForEach[NonEmptyVector].forEach(zip(zip(f, λ), m)) {
+          case ((fi, λi), mi) =>
+            val temp: NonEmptyVector[Double] = NonEmptyVector.fromIterableOption(Vector.fill(D)(5.0 / λi)).get
+            val point                      = mi.rotate(temp)//temp.map(implicitly[Field[A]].fromDouble) rotate mi
+              fi(point).map(math.abs(_))
+        }
 
-//       val normWeights = for {
-//         ws        <- weights
-//         maxWeight = ws.max
-//         w1mMaxPow = 1.0 - (maxWeight ** 10)
-//         adjusted  = ws.map(wi => if (wi != maxWeight) wi * w1mMaxPow else wi)
-//         wSum      = adjusted mapSum (xi => xi)
-//       } yield adjusted map { _ / wSum }
+      //type Z =  NonEmptyVector[(NonEmptyVector[Double], Matrix[Double], NonEmptyVector[Double] => RVar[Double], Double, Double, Double, Double, NonEmptyVector[Double])]
 
-//       for {
-//         z  <- zipped
-//         nw <- normWeights
-//         rs <- (z zip nw) traverse {
-//                case ((_, _, fi, _, _, bi, fmaxi, zi), wi) =>
-//                  fi(zi) map { fiz =>
-//                    wi * (C * fiz / fmaxi + bi)
-//                  }
-//              }
-//       } yield rs.mapSum(xi => xi)
-//     }
-//   }
+      val zipped: RVar[NonEmptyVector[(NonEmptyVector[Double], Matrix[Double], NonEmptyVector[Double] => RVar[Double], Double, Double, Double, Double, NonEmptyVector[Double])]] =
+        fmax map { fMax =>
+          zip(zip(zip(zip(zip(zip(o, m), f), λ), σ), b), fMax) map {
+            case ((((((oi, mi), fi), λi), σi), bi), fmaxi) =>
+              val zi = mi.rotate(shift(x, oi).map(_ / λi))
+              (oi, mi, fi, λi, σi, bi, fmaxi, zi)
+          }
+        }
+
+      val weights: RVar[NonEmptyVector[Double]] =
+        zipped map {
+        _.map {
+          case (oi, _, _, _, σi, _, _, zi) =>
+            val denom =  mapSum(zip(x, oi)) { case (xk, oik) => (xk - oik) * (xk - oik) }
+            math.exp(-denom / (2.0 * zi.length * σi * σi))
+        }
+      }
+
+      val normWeights: RVar[NonEmptyVector[Double]] =
+        for {
+          ws        <- weights
+          maxWeight = ws.toChunk.max
+          w1mMaxPow = 1.0 - math.pow(maxWeight, 10)
+          adjusted  = ws.map(wi => if (wi != maxWeight) wi * w1mMaxPow else wi)
+          wSum      = mapSum(adjusted) (xi => xi)
+        } yield adjusted map { _ / wSum }
+
+      for {
+        z <- zipped
+        nw <- normWeights
+
+        rs: NonEmptyVector[RVar[Double]] = zip(z, nw).map {
+          case ((_, _, fi, _, _, bi, fmaxi, zi), wi) =>
+            fi(zi) map { fiz =>
+              wi * (C * fiz / fmaxi + bi)
+            }
+        }
+
+        z <- NonEmptyForEach[NonEmptyVector].forEach(rs)(a => a)
+      } yield {
+        mapSum(z)(xi => xi)
+      }
+    }
+  }
 
 }
