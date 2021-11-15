@@ -39,24 +39,50 @@ lazy val benchmarks =
   project.in(file("."))
     .settings(
       name := "benchmarks",
-      scalacOptions ++= Seq(
-        "-deprecation",
-        "-encoding",
-        "UTF-8",
-        "-feature",
-        "-language:existentials",
-        "-language:higherKinds",
-        "-language:experimental.macros",
-        "-unchecked",
-        // "-Xfatal-warnings",
-        "-Xlint",
-        "-Yno-adapted-args",
-        "-Ywarn-dead-code",
-        "-Ywarn-numeric-widen",
-        "-Ywarn-value-discard",
-        // "-verbose",
-        "-Xfuture"
-      ),
+      scalacOptions ++=
+        (CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, 12)) =>
+            Seq(
+              "-deprecation",
+              "-encoding",
+              "UTF-8",
+              "-feature",
+              "-language:existentials",
+              "-language:higherKinds",
+              "-language:experimental.macros",
+              "-unchecked",
+              // "-Xfatal-warnings",
+              "-Xlint",
+              "-Yno-adapted-args",
+              "-Ywarn-dead-code",
+              "-Ywarn-numeric-widen",
+              "-Ywarn-value-discard",
+              // "-verbose",
+              "-Xfuture"
+            )
+
+          case Some((2, 13)) =>
+            Seq(
+              "-deprecation",
+              "-encoding",
+              "UTF-8",
+              "-feature",
+              "-language:existentials",
+              "-language:higherKinds",
+              "-language:experimental.macros",
+              "-unchecked",
+              // "-Xfatal-warnings",
+              "-Xlint",
+              "-Ywarn-dead-code",
+              "-Ywarn-numeric-widen",
+              "-Ywarn-value-discard",
+              // "-verbose",
+              "-Xfuture"
+            )
+
+          case x =>
+            sys.error(s"Version of scala is not supported: $x")
+        }),
       resolvers ++= Seq(
         Resolver.sonatypeRepo("releases"),
         Resolver.sonatypeRepo("snapshots")
