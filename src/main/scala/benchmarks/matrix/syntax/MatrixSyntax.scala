@@ -7,9 +7,6 @@
 // import _root_.scala.Predef.{ any2stringadd => _, _ }
 // import benchmarks.implicits._
 // import dimension._
-// import shapeless._
-// import spire.algebra.{ Eq, Field, Ring }
-// import spire.implicits._
 
 // // simple column major matrix
 // final class MatrixOps[C <: Nat, R <: Nat, A](m: Matrix[C, R, A]) {

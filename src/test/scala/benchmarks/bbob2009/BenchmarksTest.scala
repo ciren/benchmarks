@@ -4,10 +4,6 @@
 // import org.scalacheck._
 // import org.scalacheck.Prop._
 
-// import shapeless._
-// import shapeless.nat._
-// import spire.implicits._
-
 // import Benchmarks._
 // import benchmarks.dimension._
 // import benchmarks.dimension.Generators._

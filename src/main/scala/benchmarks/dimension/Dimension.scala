@@ -4,8 +4,6 @@
 // import scalaz.Scalaz._
 // import shapeless._
 // import shapeless.ops.nat.ToInt
-// import spire.algebra.Field
-// import spire.math.Interval
 
 // import cilib._
 

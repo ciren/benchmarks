@@ -6,9 +6,6 @@
 // import org.scalacheck.Prop._
 
 // import cilib._
-// import shapeless._
-// import spire.math.Interval
-// import spire.implicits._
 
 // import benchmarks.implicits._
 // import Generators._

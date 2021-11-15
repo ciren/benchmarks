@@ -6,9 +6,6 @@
 
 // import cilib._
 
-// import shapeless._
-// import spire.math.{abs,Interval,sqrt}
-// import spire.implicits._
 // import matrix.implicits._
 // import dimension._
 // import dimension.implicits._
