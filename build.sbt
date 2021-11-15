@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-val zioVersion = "1.0.11"
+val zioVersion = "1.0.12"
 
 val zioPrelude = "dev.zio" %% "zio-prelude"  % "1.0.0-RC5"
 val zioTest    = "dev.zio" %% "zio-test"     % zioVersion % Test
@@ -9,15 +9,14 @@ val zioTestSbt = "dev.zio" %% "zio-test-sbt" % zioVersion % Test
 
 val attoCore = "org.tpolecat" %% "atto-core" % "0.9.5"
 
-val revisionSHA   = "c9119628710b190ea56974bdc284ef0820d9934f"
-lazy val cilibCore = ProjectRef(uri("git://github.com/ciren/cilib.git#%s".format(revisionSHA)), "core")
+val cilibCore = "net.cilib" %% "core" % "2.0.0+97-d11405f0-SNAPSHOT"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
     organization := "net.cilib",
-    crossScalaVersions := Seq("2.12.12", "2.13.5"),// "3.0.0"),
+    crossScalaVersions := Seq("2.12.12", "2.13.6"),// "3.0.0"),
     homepage := Some(url("https://cilib,net")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
@@ -63,6 +62,7 @@ lazy val benchmarks =
         Resolver.sonatypeRepo("snapshots")
       ),
       libraryDependencies := Seq(
+        cilibCore,
         zioPrelude,
         attoCore,
         zioTest, zioTestSbt
@@ -90,4 +90,4 @@ lazy val benchmarks =
           </developers>
       ),
       ThisBuild / scalafixDependencies += "com.nequissimus" %% "sort-imports" % "0.5.0"
-    ).dependsOn(cilibCore)
+    )

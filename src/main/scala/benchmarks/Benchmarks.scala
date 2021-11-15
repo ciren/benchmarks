@@ -1226,7 +1226,7 @@ object Benchmarks {
 
   def schwefel221(x: NonEmptyList[Double]) =
     x.fold(abs(x.head)) { (xi, xi1) =>
-      spire.math.max(abs(xi), abs(xi1))
+      math.max(abs(xi), abs(xi1))
     }
 
   def schwefel222(x: NonEmptyList[Double]) =
@@ -1251,7 +1251,7 @@ object Benchmarks {
 
   def schwefel26(x: (Double, Double)) = {
     val (x1, x2) = x
-    spire.math.max(abs(x1 + 2 * x2 - 7), abs(2 * x1 + x2 - 5))
+    math.max(abs(x1 + 2 * x2 - 7), abs(2 * x1 + x2 - 5))
   }
 
   def shekel5(x: (Double, Double, Double, Double)) = {
