@@ -16,6 +16,8 @@ jobs:
         scala: ['2.12.14', '2.13.6']
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
       - uses: cachix/install-nix-action@v12
 
       - run: nix-shell --run 'sbt -Dsbt.supershell=false ++${{ matrix.scala }}! test'
