@@ -1,12 +1,12 @@
 package benchmarks
 
-import zio.prelude._
+import zio.prelude.{NonEmptyList}
 import zio.test._
 
 import Benchmarks._
 import Generators._
 
-object BenchmarkTests extends DefaultRunnableSpec {
+object BenchmarkTests extends ZIOSpecDefault {
   val zero3 = NonEmptyList(0.0, 0.0, 0.0)
 
 
@@ -18,9 +18,9 @@ object BenchmarkTests extends DefaultRunnableSpec {
 //     def ~(v: Double) = abs(v - d) <= epsilon
 //   }
 
-  def spec: ZSpec[Environment, Failure] = suite("Benchmarks")(
+  def spec = suite("Benchmarks")(
 
-    testM("absoluteValue") {
+    test("absoluteValue") {
       check(nelGen(10)) { case xs =>
         val abs = absoluteValue(xs)
 

@@ -1,22 +1,22 @@
 import sbt._
 import Keys._
 
-val zioVersion = "1.0.12"
+val zioVersion = "2.0.0"
 
-val zioPrelude = "dev.zio" %% "zio-prelude"  % "1.0.0-RC5"
+val zioPrelude = "dev.zio" %% "zio-prelude"  % "1.0.0-RC15"
 val zioTest    = "dev.zio" %% "zio-test"     % zioVersion % Test
 val zioTestSbt = "dev.zio" %% "zio-test-sbt" % zioVersion % Test
 
 val attoCore = "org.tpolecat" %% "atto-core" % "0.9.5"
 
-val cilibCore = "net.cilib" %% "core" % "2.0.0+97-d11405f0-SNAPSHOT"
+val cilibCore = "net.cilib" %% "core" % "2.0.0+123-6fb77f57-SNAPSHOT"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
     organization := "net.cilib",
-    crossScalaVersions := Seq("2.12.12", "2.13.6"),// "3.0.0"),
+    crossScalaVersions := Seq("2.12.12", "2.13.8"),// "3.0.0"),
     homepage := Some(url("https://cilib,net")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(

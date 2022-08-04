@@ -205,7 +205,7 @@ object Benchmarks {
   def brent(x: NonEmptyList[Double]) =
     mapSum(x)(xi => (xi + 10) * (xi + 10)) + exp(mapSum(x.map(_ * -1))(xi => xi*xi))
 
-  def brown(x: AtLeast2List[Double]) =
+  def brown(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x).toChunk.toList)) {
       case (xi, xi1) => pow(xi * xi, (xi1 * xi1) + 1) + pow(xi1 * xi1, (xi * xi) + 1)
     }
@@ -257,7 +257,7 @@ object Benchmarks {
     r * r
   }
 
-  def cigar(condition: Double = 10e6)(x: AtLeast2List[Double]) =
+  def cigar(condition: Double = 10e6)(x: AtLeast2List) =
     AtLeast2List.unwrap(x).toChunk.toList match {
       case x1 :: x2 :: rest =>
         x1*x1 + x2*x2 * condition + mapSum(rest)(square) * condition
@@ -390,7 +390,7 @@ object Benchmarks {
     }
   }
 
-  def differentPowers(x: AtLeast2List[Double]) = {
+  def differentPowers(x: AtLeast2List) = {
     val l = AtLeast2List.unwrap(x).toChunk.toList
     val n = l.size
     val inner = mapSum(l.zipWithIndex) {
@@ -402,7 +402,7 @@ object Benchmarks {
   def discus(x: NonEmptyList[Double]) =
     pow(10, 6) * (x.head * x.head) + mapSum(x.tail)(square)
 
-  def dixonPrice(x: AtLeast2List[Double]) = {
+  def dixonPrice(x: AtLeast2List) = {
     val l = AtLeast2List.unwrap(x)
     val t1 = pow(l.head - 1, 2)
     val t2 = mapSum(pairs(l).zipWithIndex) {
@@ -432,7 +432,7 @@ object Benchmarks {
   def eggCrate(x: NonEmptyList[Double]) =
     mapSum(x)(square) + 24 * mapSum(x)(xi => sin(xi) * sin(xi))
 
-  def eggHolder(x: AtLeast2List[Double]) =
+  def eggHolder(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (x1, x2) =>
         -(x2 + 47) * sin(sqrt(abs(x2 + (x1 / 2) + 47))) - x1 * sin(sqrt(abs(x1 - x2 - 47)))
@@ -446,7 +446,7 @@ object Benchmarks {
     t1*t1 + t2*t2 + t3*t3
   }
 
-  def elliptic(x: AtLeast2List[Double]) = {
+  def elliptic(x: AtLeast2List) = {
     val l = AtLeast2List.unwrap(x)
     val n = l.length
     mapSum(l.zipWithIndex) {
@@ -744,7 +744,7 @@ object Benchmarks {
     t1 + t2*t2
   }
 
-  def levy3(x: AtLeast2List[Double]) = {
+  def levy3(x: AtLeast2List) = {
     val list = AtLeast2List.unwrap(x)
     def y(xi: Double) = 1 + (xi - 1) / 4.0
     val t1          = pow(sin(Pi * y(list.head)), 2)
@@ -773,7 +773,7 @@ object Benchmarks {
     t1 + t2 + t3
   }
 
-  def levyMontalvo2(x: AtLeast2List[Double]) = {
+  def levyMontalvo2(x: AtLeast2List) = {
     val l = AtLeast2List.unwrap(x)
     val last = l.last
     val t1 = pow(sin(3 * Pi * l.head), 2)
@@ -824,7 +824,7 @@ object Benchmarks {
     pow(1 + n - sum, n - sum)
   }
 
-  def mishra2(x: AtLeast2List[Double]) = {
+  def mishra2(x: AtLeast2List) = {
     val l = AtLeast2List.unwrap(x)
     val sum = mapSum(pairs(l)) {
       case (xi, xi1) => 0.5 * (xi + xi1)
@@ -946,7 +946,7 @@ object Benchmarks {
     (cos(x1) * cos(x1)) + (sin(x2) * sin(x2)) // trig identity????
   }
 
-  def pathological(x: AtLeast2List[Double]) =
+  def pathological(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val numer = pow(sin(sqrt(100 * (xi * xi) + (xi1 * xi1))), 2) - 0.5
@@ -961,7 +961,7 @@ object Benchmarks {
     t1 - t2
   }
 
-  def penalty1(l: AtLeast2List[Double]) = {
+  def penalty1(l: AtLeast2List) = {
     val x = AtLeast2List.unwrap(l)
     def u(xi: Double, a: Int, k: Int, m: Double) =
       if (xi > a) k * pow(xi - a, m)
@@ -983,7 +983,7 @@ object Benchmarks {
     (Pi / 30) * (term1 + term2 + term3*term3) + term4
   }
 
-  def penalty2(l: AtLeast2List[Double]) = {
+  def penalty2(l: AtLeast2List) = {
     val x = AtLeast2List.unwrap(l)
     def u(xi: Double, a: Int, k: Int, m: Double) =
       if (xi > a) k * pow(xi - a, m)
@@ -1017,7 +1017,7 @@ object Benchmarks {
     1 + t1 - t2
   }
 
-  def pinter(l: AtLeast2List[Double]) = {
+  def pinter(l: AtLeast2List) = {
     val x = AtLeast2List.unwrap(l).toChunk
     val padded                 = x.last :: (x.toList :+ x.head)
     def A(a0: Double, a1: Double, a2: Double) = a0 * sin(a1) + sin(a2)
@@ -1104,7 +1104,7 @@ object Benchmarks {
       pow(xi, 5) - 3 * pow(xi, 4) + 4 * pow(xi, 3) + 2 * pow(xi, 2) - 10 * xi - 4
     })
 
-  def rana(x: AtLeast2List[Double]) =
+  def rana(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = sqrt(abs(xi1 + xi + 1))
@@ -1115,7 +1115,7 @@ object Benchmarks {
   def rastrigin(x: NonEmptyList[Double]) =
     10 * x.length + mapSum(x)(xi => xi * xi - 10 * cos(2 * Pi * xi))
 
-  def rosenbrock(x: AtLeast2List[Double]) =
+  def rosenbrock(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x).toChunk.toList)) {
       case (xi, xi1) =>
         100 * square(xi1 - (xi * xi)) + square(xi - 1)
@@ -1135,13 +1135,13 @@ object Benchmarks {
       -exp(u) * v
     }
 
-  def rotatedEllipse1(x: AtLeast2List[Double]) =
+  def rotatedEllipse1(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (x1, x2) =>
         (7 * (x1 * x1)) - (6 * sqrt(3.0) * x1 * x2) + (13 * (x2 * x2))
     }
 
-  def rotatedEllipse2(x: AtLeast2List[Double]) =
+  def rotatedEllipse2(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (x1, x2) => (x1 * x1) - (x1 * x2) + (x2 * x2)
     }
@@ -1160,7 +1160,7 @@ object Benchmarks {
     }
   }
 
-  def schaffer1(x: AtLeast2List[Double]) =
+  def schaffer1(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t0 = (xi * xi) + (xi1 * xi1)
@@ -1170,7 +1170,7 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer2(x: AtLeast2List[Double]) =
+  def schaffer2(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t0 = (xi * xi) - (xi1 * xi1)
@@ -1180,7 +1180,7 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer3(x: AtLeast2List[Double]) =
+  def schaffer3(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = cos(abs((xi * xi) - (xi1 * xi1)))
@@ -1190,7 +1190,7 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer4(x: AtLeast2List[Double]) =
+  def schaffer4(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t0 = sin((xi * xi) - (xi1 * xi1))
@@ -1200,7 +1200,7 @@ object Benchmarks {
         0.5 + (t3 / t4)
     }
 
-  def schaffer6(x: AtLeast2List[Double]) =
+  def schaffer6(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t0 = (xi * xi) + (xi1 * xi1)
@@ -1356,7 +1356,7 @@ object Benchmarks {
   def step3(x: NonEmptyList[Double]) =
     mapSum(x)(xi => floor(xi * xi))
 
-  def stretchedVSineWave(x: AtLeast2List[Double]) =
+  def stretchedVSineWave(x: AtLeast2List) =
     mapSum(pairs(AtLeast2List.unwrap(x))) {
       case (xi, xi1) =>
         val t1 = pow((xi1 * xi1) + (xi * xi), 0.25)
@@ -1393,7 +1393,7 @@ object Benchmarks {
     t1 + t2 + t3 + t4 + t5
   }
 
-  def trid(x: AtLeast2List[Double]) = {
+  def trid(x: AtLeast2List) = {
     val t1 = mapSum(AtLeast2List.unwrap(x))(xi => (xi - 1) * (xi - 1))
     val t2 = mapSum(pairs(AtLeast2List.unwrap(x))) { case (xi, xi1) => xi * xi1 }
     t1 - t2

@@ -36,10 +36,8 @@ object Data {
   val doubleParser = Atto.skipWhitespace ~> nonWhitespace.map(_.toDouble) <~ Atto.skipWhitespace
 
   def fromResourceEffect[A](resourcePath: String, parser: Parser[A]) =
-    ZIO.bracket(
-      acquire = ZIO.effect(fromResource(resourcePath)),
-      release = (r: BufferedSource) => Task.succeed(r.close()),
-      use = (resource: BufferedSource) => ZIO.succeed {
+    ZIO.acquireReleaseWith(ZIO.attemptBlockingIO(fromResource(resourcePath)))((r: BufferedSource) => ZIO.succeed(r.close())) { resource =>
+      ZIO.succeed {
         val result =
           resource.getLines().foldLeft(parser.parse("")) {
             case (parse, line ) =>
@@ -53,14 +51,20 @@ object Data {
         }
 
       }
-    )
+    }
+
+
+  def unsafeRun[A](x: Task[A]): A =
+    Unsafe.unsafe { implicit unsafe =>
+      Runtime.default.unsafe.run(x).getOrThrowFiberFailure()
+    }
 
   def parseResourceMatrix(rows: Int, cols: Int, resource: String): Matrix[Double] = {
     val matrix =
       fromResourceEffect(resource, Atto.count(rows * cols, doubleParser)
         .map(data => Matrix(rows, cols, data.toVector)))
 
-    Runtime.default.unsafeRunTask(matrix)
+    unsafeRun(matrix)
   }
 
   def parseResourceNonEmptyList(resource: String): NonEmptyList[Double] = {
@@ -68,7 +72,7 @@ object Data {
       fromResourceEffect(resource, many(doubleParser))
         .map(iter => NonEmptyList.fromIterableOption(iter).get)
 
-    Runtime.default.unsafeRunTask(list)
+    unsafeRun(list)
   }
 
   lazy val sphere_func_data: NonEmptyList[Double] =
@@ -101,7 +105,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/schwefel_206_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val rosenbrock_func_data: NonEmptyList[Double] =
@@ -181,7 +185,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/schwefel_213_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val EF8F2_func_data: NonEmptyList[Double] =
@@ -209,7 +213,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func1_M_D2: NonEmptyVector[Matrix[Double]] = {
@@ -220,7 +224,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_M_D2.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func1_M_D10: NonEmptyVector[Matrix[Double]] = {
@@ -231,7 +235,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_M_D10.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func1_M_D30: NonEmptyVector[Matrix[Double]] = {
@@ -242,7 +246,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_M_D30.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func1_M_D50: NonEmptyVector[Matrix[Double]] = {
@@ -253,7 +257,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func1_M_D50.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
 
@@ -264,7 +268,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func2_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func2_M_D2: NonEmptyVector[Matrix[Double]] = {
@@ -275,7 +279,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func2_M_D2.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func2_M_D10: NonEmptyVector[Matrix[Double]] = {
@@ -286,7 +290,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func2_M_D10.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func2_M_D30: NonEmptyVector[Matrix[Double]] = {
@@ -297,7 +301,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func2_M_D30.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func2_M_D50: NonEmptyVector[Matrix[Double]] = {
@@ -308,7 +312,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func2_M_D50.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
 
@@ -319,7 +323,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func3_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func3_M_D2: NonEmptyVector[Matrix[Double]] = {
@@ -330,7 +334,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func3_M_D2.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func3_M_D10: NonEmptyVector[Matrix[Double]] = {
@@ -341,7 +345,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func3_M_D10.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func3_M_D30: NonEmptyVector[Matrix[Double]] = {
@@ -352,7 +356,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func3_M_D30.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func3_M_D50: NonEmptyVector[Matrix[Double]] = {
@@ -363,7 +367,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func3_M_D50.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
 
@@ -375,7 +379,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func4_data.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
 
@@ -387,7 +391,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func4_M_D2.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func4_M_D10: NonEmptyVector[Matrix[Double]] = {
@@ -398,7 +402,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func4_M_D10.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func4_M_D30: NonEmptyVector[Matrix[Double]] = {
@@ -409,7 +413,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func4_M_D30.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
   lazy val hybrid_func4_M_D50: NonEmptyVector[Matrix[Double]] = {
@@ -420,7 +424,7 @@ object Data {
 
     val effect = fromResourceEffect("cec2005/hybrid_func4_M_D50.txt", parser)
 
-    Runtime.default.unsafeRunTask(effect)
+    unsafeRun(effect)
   }
 
 

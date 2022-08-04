@@ -59,7 +59,7 @@ object Benchmarks {
    * F3: Shifted Rotated High Conditioned Elliptic Function
    * x ∈ [-100, 100]D
    */
-  def f3(x: AtLeast2List[Double]): Double = {
+  def f3(x: AtLeast2List): Double = {
     val list = AtLeast2List.unwrap(x)
     val n = list.length
     val bias = -450
@@ -132,7 +132,7 @@ object Benchmarks {
    * F6: Shifted Rosenbrock’s Function
    * x ∈ [−100,100]D
    */
-  def f6(x: AtLeast2List[Double]): Double = {
+  def f6(x: AtLeast2List): Double = {
     val bias = 390
     val o = Data.rosenbrock_func_data
     val nel = AtLeast2List.unwrap(x)
@@ -296,7 +296,7 @@ object Benchmarks {
    * F13: Shifted Expanded Griewank’s plus Rosenbrock’s Function (F8F2)
    * x ∈ [−5,5]D
    */
-  def f13(x: AtLeast2List[Double]): Double = {
+  def f13(x: AtLeast2List): Double = {
     val bias = -130.0
     val o = Data.EF8F2_func_data
 
@@ -321,7 +321,7 @@ object Benchmarks {
    * F14 Shifted Rotated Expanded Scaffer’s F6 Function
    * x ∈ [−100,100]D
    */
-  def f14(x: AtLeast2List[Double]): Double = {
+  def f14(x: AtLeast2List): Double = {
     // P.params match {
     //   case (o, m, fbias) =>
     //     val z = x.shift(o).rotate(m)
@@ -621,7 +621,7 @@ object Benchmarks {
     h(x) + fbias
   }
 
-  def toAtLeast2List(x: NonEmptyVector[Double]): AtLeast2List[Double] =
+  def toAtLeast2List(x: NonEmptyVector[Double]): AtLeast2List =
     AtLeast2List.make(x) match {
         case ZValidation.Failure(_, e) => sys.error(e.toString())
         case ZValidation.Success(_, a) => a
@@ -643,7 +643,7 @@ object Benchmarks {
    * F21: Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f21(x: AtLeast2List[Double]): Double = {
+  def f21(x: AtLeast2List): Double = {
     // P.params match {
     //   case (o, m, fbias) => {
     val n = AtLeast2List.unwrap(x).length
@@ -697,7 +697,7 @@ object Benchmarks {
    * F22: Rotated Hybrid Composition Function with High Condition Number Matrix
    * x ∈ [−5,5]D
    */
-  def f22(x: AtLeast2List[Double]): Double = {
+  def f22(x: AtLeast2List): Double = {
     // P.params match {
     //   case (o, m, fbias) => {
     val n = AtLeast2List.unwrap(x).length
@@ -750,7 +750,7 @@ object Benchmarks {
    * F23: Non-Continuous Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f23(x: AtLeast2List[Double]): Double = {
+  def f23(x: AtLeast2List): Double = {
     //(P21.params, P23.params) match {
     //      case ((o, _, f21bias), fbias) =>
     val n = AtLeast2List.unwrap(x).length
@@ -772,7 +772,7 @@ object Benchmarks {
    * F24: Rotated Hybrid Composition Function
    * x ∈ [−5,5]D
    */
-  def f24(x: AtLeast2List[Double]): RVar[Double] = {
+  def f24(x: AtLeast2List): RVar[Double] = {
     // P.params match {
     //   case (o, m, fbias, noise) =>
     def preRound(x: NonEmptyVector[Double]) =
@@ -827,7 +827,7 @@ object Benchmarks {
    * F25: Rotated Hybrid Composition Function without bounds
    * x ∈ [2, 5]D
    */
-  def f25(x: AtLeast2List[Double]): RVar[Double] =
+  def f25(x: AtLeast2List): RVar[Double] =
     f24(x)
 
   // //(P24.params, P25.params) match {

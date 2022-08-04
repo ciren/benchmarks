@@ -2,8 +2,8 @@ package benchmarks
 package cec
 package cec2005
 
-import zio.prelude._
 import zio.test._
+import zio.prelude.ZValidation
 
 import scala.math._
 
@@ -11,7 +11,7 @@ import cilib.{RVar, RNG, NonEmptyVector}
 import Generators._
 import benchmarks.cec.cec2005.Benchmarks._
 
-object CEC2005BenchmarkTest extends DefaultRunnableSpec {
+object CEC2005BenchmarkTest extends ZIOSpecDefault {
 
   val rng0 = RNG.init(0)
 
@@ -37,7 +37,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     assert(abs(y._1 - f(point).runResult(rng0)))(Assertion.isLessThanEqualTo(pow(10.0, -y._2)))
 
 
-  def toAtLeast2List(x: NonEmptyVector[Double]): AtLeast2List[Double] =
+  def toAtLeast2List(x: NonEmptyVector[Double]): AtLeast2List =
     AtLeast2List.make(x) match {
       case ZValidation.Success(_, v) => v
       case ZValidation.Failure(_, e) => sys.error(e.toString())
@@ -48,7 +48,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
   val point30 = NonEmptyVector.fromIterableOption((0 until 30).map(_.toDouble)).get
   val point50 = NonEmptyVector.fromIterableOption((0 until 50).map(_.toDouble)).get
 
-  def spec: ZSpec[Environment,Failure] = suite("CEC2005 Benchmarks")(
+  def spec = suite("CEC2005 Benchmarks")(
 
 //   implicit val f17ParamsNoNoise = new F17Params[Double] {
 //     val params = (helper.fbiasFromResource(17), RVar.point(0.0))
@@ -63,7 +63,8 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
 //       )
 //     }
 
-    testM("F1") {
+
+    test("F1") {
       val bias = -450.0
       check(genCECSized(-100, 100)) {
         case (s2, s10, s30, s50) =>
@@ -74,7 +75,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F2") {
+    test("F2") {
       val bias = -450.0
       check(genCECSized(-100.0, 100.0)) {
         case (s2, s10, s30, s50) =>
@@ -85,7 +86,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F3") {
+    test("F3") {
       val f: NonEmptyVector[Double] => Double = x => f3(toAtLeast2List(x))
       val bias = -450.0
 
@@ -97,7 +98,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F4") {
+    test("F4") {
       val bias = -450.0
       def f(x: NonEmptyVector[Double]) = f4Noise(x, RVar.pure(0.0))
 
@@ -109,7 +110,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F5") {
+    test("F5") {
       val bias = -310.0
 
        check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
@@ -120,7 +121,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F6") {
+    test("F6") {
       val bias = 390.0
       val f: NonEmptyVector[Double] => Double = x => f6(toAtLeast2List(x))
 
@@ -132,7 +133,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F7") {
+    test("F7") {
       val bias = -180.0
 
       check(genCECSized(-100.0, 100.0)) { case (s2, s10, s30, s50) =>
@@ -143,7 +144,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F8") {
+    test("F8") {
       val bias = -140.0
 
       check(genCECSized(-32.0, 32.0)) { case (s2, s10, s30, s50) =>
@@ -154,7 +155,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
    },
 
-    testM("F9") {
+    test("F9") {
       val bias = -330.0
 
       check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -165,7 +166,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F10") {
+    test("F10") {
       val bias = -330.0
 
       check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -176,7 +177,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F11") {
+    test("F11") {
       val bias = 90.0
       check(genCECSized(-0.5, 0.5)) { case (s2, s10, s30, s50) =>
         validate(f11, s2,  bias, (94.73273623129674, 20), point2) &&
@@ -187,7 +188,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     },
 
     // FIXME: This test should be working, but it isn't
-    // testM("F12") {
+    // test("F12") {
     //   val bias = -460.0
     //   check(genCECSized(-Pi, Pi)) { case (s2, s10, s30, s50) =>
     //     validate(f12, s2,  bias, (-58.812048337208671,   1), point2) &&
@@ -197,7 +198,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    testM("F13") {
+    test("F13") {
       val bias = -130.0
       val f: NonEmptyVector[Double] => Double = x => f13(toAtLeast2List(x))
 
@@ -209,7 +210,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    testM("F14") {
+    test("F14") {
       val bias = -300.0
       val f: NonEmptyVector[Double] => Double = x => f14(toAtLeast2List(x))
 
@@ -221,7 +222,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    // testM("f15") {
+    // test("f15") {
     //   val bias = 120.0
 
     //   check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -232,7 +233,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    testM("f16") {
+    test("f16") {
       val bias = 120.0
 
       check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -243,7 +244,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    // testM("f17") {
+    // test("f17") {
     //   val bias = 120.0
 
     //   check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -254,7 +255,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f18") {
+    // test("f18") {
     //   val bias = 10.0
 
     //   check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -265,7 +266,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f19") {
+    // test("f19") {
     //   val bias = 10.0
 
     //   check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -276,7 +277,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    testM("f20") {
+    test("f20") {
       val bias = 10.0
 
       check(genCECSized(-5.0, 5.0)) { case (s2, s10, s30, s50) =>
@@ -287,7 +288,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
       }
     },
 
-    // testM("f21") {
+    // test("f21") {
     //   val bias = 360.0
     //   val f: NonEmptyVector[Double] => Double = x => f21(toAtLeast2List(x))
 
@@ -299,7 +300,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f22") {
+    // test("f22") {
     //   val bias = 360.0
     //   val f: NonEmptyVector[Double] => Double = x => f22(toAtLeast2List(x))
 
@@ -311,7 +312,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f23") {
+    // test("f23") {
     //   val bias = 360.0
     //   val f: NonEmptyVector[Double] => Double = x => f23(toAtLeast2List(x))
 
@@ -323,7 +324,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f24") {
+    // test("f24") {
     //   val bias = 260.0
     //   val f: NonEmptyVector[Double] => RVar[Double] = x => f24(toAtLeast2List(x))
 
@@ -335,7 +336,7 @@ object CEC2005BenchmarkTest extends DefaultRunnableSpec {
     //   }
     // },
 
-    // testM("f25") {
+    // test("f25") {
     //   val bias = 260.0
     //   val f: NonEmptyVector[Double] => RVar[Double] = x => f25(toAtLeast2List(x))
 

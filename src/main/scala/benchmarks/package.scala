@@ -1,40 +1,23 @@
 import zio.prelude._
-import zio.test.Assertion
-import zio.test.AssertionM.Render.param
 import cilib.Input
 import cilib.NonEmptyVector
 
 package object benchmarks {
 
-  // implicit def input[N <: Nat: ToInt, A]: Input[({ type T[A] = Dimension[N, A] })#T] =
-  //   new Input[({ type T[A] = Dimension[N, A] })#T] {
-  //     def toInput[B](a: NonEmptyList[B]): Dimension[N, B] = {
-  //       val dim = implicitly[ToInt[N]].apply
-  //       if (dim != a.size) sys.error("Input vector dimension is not the same as the benchmark function")
-  //       else Sized.wrap[IndexedSeq[B], N](a.toVector)
-  //     }
-  //   }
-
-  def isLongerThan(reference: Int): AssertionF[NonEmptyVector] =
-    new AssertionF[NonEmptyVector] {
-      def apply[A]: Assertion[NonEmptyVector[A]] =
-        Assertion.assertion("isLongerThan")(param(reference))(_.length >= reference)
-    }
-
-
-
   // TODO: This type needs a better name
-  object AtLeast2List extends NewtypeSmartF[NonEmptyVector](isLongerThan(2))
-  type AtLeast2List[x] = AtLeast2List.Type[x]
+  object AtLeast2List extends Newtype[NonEmptyVector[Double]]
+  type AtLeast2List = AtLeast2List.Type
 
-  implicit val AtLeast2ListToInput: Input[AtLeast2List] =
-    new Input[AtLeast2List] {
-      def toInput[A](a: NonEmptyVector[A]): AtLeast2List[A] =
-        AtLeast2List.make(a) match {
-          case ZValidation.Failure(w, e) => sys.error("asd")
-          case ZValidation.Success(w, result) => result
-        }
-    }
+
+
+  // implicit val AtLeast2ListToInput: Input[AtLeast2List.Type] =
+  //   new Input[AtLeast2List] {
+  //     def toInput[A](a: NonEmptyVector[A]): AtLeast2List[A] =
+  //       AtLeast2List.make(a) match {
+  //         case ZValidation.Failure(w, e) => sys.error("asd")
+  //         case ZValidation.Success(w, result) => result
+  //       }
+  //   }
 
   implicit val Tuple3ToInput: Input[({ type lambda[A] = (A, A, A) })#lambda] =
     new Input[({ type lambda[A] = (A, A, A) })#lambda] {
